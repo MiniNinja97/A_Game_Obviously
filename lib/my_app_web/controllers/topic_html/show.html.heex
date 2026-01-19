@@ -1,0 +1,19 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Topic {@topic.id}
+    <:subtitle>This is a topic record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/topics"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+      <.button variant="primary" navigate={~p"/topics/#{@topic}/edit?return_to=show"}>
+        <.icon name="hero-pencil-square" /> Edit topic
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Title">{@topic.title}</:item>
+    <:item title="Body">{@topic.body}</:item>
+  </.list>
+</Layouts.app>
