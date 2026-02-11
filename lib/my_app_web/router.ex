@@ -1,6 +1,5 @@
 defmodule MyAppWeb.Router do
   use MyAppWeb, :router
-
   import MyAppWeb.UserAuth
 
   pipeline :browser do
@@ -17,40 +16,22 @@ defmodule MyAppWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Root / — login
   scope "/", MyAppWeb do
-    pipe_through :browser
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    get "/", PageController, :home
-     resources "/topics", TopicController
+    live "/", UserLive.Login, :new
+  end
+
+  # OAuth
+  scope "/auth", MyAppWeb do
+    pipe_through :browser
 
     get "/:provider", OAuthController, :request
     get "/:provider/callback", OAuthController, :callback
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MyAppWeb do
-  #   pipe_through :api
-  # end
-
-  # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:my_app, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
-    import Phoenix.LiveDashboard.Router
-
-    scope "/dev" do
-      pipe_through :browser
-
-      live_dashboard "/dashboard", metrics: MyAppWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
-  end
-
-  ## Authentication routes
-
+  # Authenticated users
   scope "/", MyAppWeb do
     pipe_through [:browser, :require_authenticated_user]
 
@@ -63,6 +44,7 @@ defmodule MyAppWeb.Router do
     post "/users/update-password", UserSessionController, :update_password
   end
 
+  # Registration / login routes
   scope "/", MyAppWeb do
     pipe_through [:browser]
 
@@ -75,5 +57,17 @@ defmodule MyAppWeb.Router do
 
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
+  end
+
+  # Dev routes
+  if Application.compile_env(:my_app, :dev_routes) do
+    import Phoenix.LiveDashboard.Router
+
+    scope "/dev" do
+      pipe_through :browser
+
+      live_dashboard "/dashboard", metrics: MyAppWeb.Telemetry
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
   end
 end

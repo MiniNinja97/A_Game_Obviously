@@ -284,4 +284,17 @@ defmodule MyAppWeb.UserAuth do
   end
 
   defp maybe_store_return_to(conn), do: conn
+
+  @doc """
+Redirects the user if they are already logged in.
+"""
+def redirect_if_user_is_authenticated(conn, _opts) do
+  if conn.assigns.current_scope && conn.assigns.current_scope.user do
+    conn
+    |> redirect(to: signed_in_path(conn)) # t.ex. /users/settings
+    |> halt()
+  else
+    conn
+  end
+end
 end
