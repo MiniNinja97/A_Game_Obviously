@@ -68,6 +68,12 @@ scope "/", MyAppWeb do
   post "/users/log-in", UserSessionController, :create
 end
 
+scope "/", MyAppWeb do
+  pipe_through [:browser, :require_authenticated_user]
+
+  delete "/users/log-out", UserSessionController, :delete
+end
+
   # Dev routes
   if Application.compile_env(:my_app, :dev_routes) do
     import Phoenix.LiveDashboard.Router

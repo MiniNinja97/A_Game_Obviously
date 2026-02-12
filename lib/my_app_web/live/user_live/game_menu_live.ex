@@ -36,9 +36,9 @@ defmodule MyAppWeb.GameMenuLive do
       </div>
 
       <div class="menu-section">
-        <a href="/users/log-out" data-method="delete">
-          Logga ut
-        </a>
+        <.link href={~p"/users/log-out"} method="delete" class="btn-logout">
+                         Logga ut
+                </.link>
       </div>
     </div>
     """
