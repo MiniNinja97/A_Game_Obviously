@@ -7,7 +7,7 @@ defmodule MyAppWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
+      <div class="login-container">
         <div class="text-center">
           <.header>
             <p>Log in</p>
@@ -17,7 +17,7 @@ defmodule MyAppWeb.UserLive.Login do
               <% else %>
                 Don't have an account? <.link
                   navigate={~p"/users/register"}
-                  class="font-semibold text-brand hover:underline"
+                  class=""
                   phx-no-format
                 >Sign up</.link> for an account now.
               <% end %>
@@ -26,11 +26,11 @@ defmodule MyAppWeb.UserLive.Login do
         </div>
 
         <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
+          <.icon name="hero-information-circle" class="" />
           <div>
             <p>You are running the local mail adapter.</p>
             <p>
-              To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
+              To see sent emails, visit <.link href="/dev/mailbox" class="">the mailbox page</.link>.
             </p>
           </div>
         </div>
@@ -51,12 +51,12 @@ defmodule MyAppWeb.UserLive.Login do
             required
             phx-mounted={JS.focus()}
           />
-          <.button class="btn btn-primary w-full">
+          <.button class="login-button">
             Log in with email <span aria-hidden="true">→</span>
           </.button>
         </.form>
 
-        <div class="divider">or</div>
+        <div class="">or</div>
 
         <.form
           :let={f}
@@ -80,12 +80,12 @@ defmodule MyAppWeb.UserLive.Login do
             label="Password"
             autocomplete="current-password"
           />
-          <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
+          <%!-- <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
             Log in and stay logged in <span aria-hidden="true">→</span>
           </.button>
           <.button class="btn btn-primary btn-soft w-full mt-2">
             Log in only this time
-          </.button>
+          </.button> --%>
         </.form>
       </div>
     </Layouts.app>

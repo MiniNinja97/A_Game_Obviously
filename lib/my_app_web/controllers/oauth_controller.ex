@@ -12,7 +12,9 @@ defmodule MyAppWeb.OAuthController do
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
 
-    email = auth.info.email
+    email =
+  auth.info.email ||
+  "#{auth.uid}@github.local"
 
     case Accounts.get_user_by_email(email) do
       nil -> {:ok, user} =

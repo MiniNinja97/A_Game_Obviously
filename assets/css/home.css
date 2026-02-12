@@ -1,0 +1,48 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+}
+
+.home-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-weight: bold;
+}
+
+.home-button {
+    padding: 0.75rem 2 rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.home-button-login {
+    background-color: #3b82f6;
+}
+
+.home-button-login:hover {
+    background-color: #2563eb;
+}
+
+.home-button-register {
+    background-color: #10b981;
+}
+
+.home-button-register:hover {
+    background-color: #059669;
+}
+
+.home-button-github {
+    background-color: #1f2937;
+
+}
+.home-button-github:hover {
+    background-color: #111827;
+}

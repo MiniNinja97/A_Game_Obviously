@@ -1,7 +1,15 @@
+
+
+
+
+
 /* See the Tailwind configuration guide for advanced usage
    https://tailwindcss.com/docs/configuration */
 
-@import "tailwindcss" source(none);
+@import "tailwindcss" source{none};
+@import "./home.css";
+@import "./login.css";
+@import "./register.css";
 @source "../css";
 @source "../js";
 @source "../../lib/my_app_web";

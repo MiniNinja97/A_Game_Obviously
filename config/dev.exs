@@ -89,3 +89,13 @@ config :my_app, MyApp.Repo,
   port: 3306,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
+
+  config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Github, [default_scope: "user:email"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+  client_id: "Ov23li9kSgk0GdVA2tq4",
+  client_secret: "d6b560273acbe60f5a99224333b8cb0ec420ab3c"
