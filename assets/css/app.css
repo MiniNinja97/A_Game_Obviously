@@ -6,7 +6,9 @@
 /* See the Tailwind configuration guide for advanced usage
    https://tailwindcss.com/docs/configuration */
 
-@import "tailwindcss" source{none};
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @import "./home.css";
 @import "./login.css";
 @import "./register.css";

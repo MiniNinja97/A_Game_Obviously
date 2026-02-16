@@ -32,13 +32,21 @@ defmodule MyAppWeb.UserAuth do
   Redirects to the session's `:user_return_to` path
   or falls back to the `signed_in_path/1`.
   """
-  def log_in_user(conn, user, params \\ %{}) do
-    user_return_to = get_session(conn, :user_return_to)
+ def log_in_user(conn, user, params \\ %{}) do
+  user_return_to = get_session(conn, :user_return_to)
 
-    conn
-    |> create_or_extend_session(user, params)
-    |> redirect(to: user_return_to || signed_in_path(conn))
-  end
+  redirect_path =
+    case user_return_to do
+      "/" -> signed_in_path(conn)
+      nil -> signed_in_path(conn)
+      path -> path
+    end
+
+  conn
+  |> create_or_extend_session(user, Map.put(params, "remember_me", "false"))
+
+  |> redirect(to: redirect_path)
+end
 
   @doc """
   Logs the user out.
@@ -244,6 +252,16 @@ defmodule MyAppWeb.UserAuth do
       {:halt, socket}
     end
   end
+  def on_mount(:redirect_if_user_is_authenticated, _params, session, socket) do
+  socket = mount_current_scope(socket, session)
+
+  if socket.assigns[:current_scope] && socket.assigns.current_scope.user do
+    {:halt, Phoenix.LiveView.redirect(socket, to: "/menu")}
+  else
+    {:cont, socket}
+  end
+end
+
 
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
@@ -258,11 +276,11 @@ defmodule MyAppWeb.UserAuth do
 
   @doc "Returns the path to redirect to after log in."
   # the user was already logged in, redirect to settings
-  def signed_in_path(%Plug.Conn{assigns: %{current_scope: %Scope{user: %Accounts.User{}}}}) do
-    ~p"/menu"
-  end
+  # def signed_in_path(%Plug.Conn{assigns: %{current_scope: %Scope{user: %Accounts.User{}}}}) do
+  #   ~p"/menu"
+  # end
 
-  def signed_in_path(_), do: ~p"/"
+  def signed_in_path(_conn), do: ~p"/menu"
 
   @doc """
   Plug for routes that require the user to be authenticated.

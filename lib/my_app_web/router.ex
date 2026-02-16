@@ -56,7 +56,7 @@ end
 
   # Registration / login routes
 scope "/", MyAppWeb do
-  pipe_through [:browser, :require_authenticated_user]
+  pipe_through [:browser]
 
   live_session :redirect_if_user_is_authenticated,
     on_mount: [{MyAppWeb.UserAuth, :redirect_if_user_is_authenticated}] do

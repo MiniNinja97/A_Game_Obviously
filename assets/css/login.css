@@ -2,22 +2,62 @@
   max-width: 400px;
   margin: 4rem auto;
   padding: 2rem;
+  font-family: "Handjet";
+  font-weight: bold;
+  font-size: 1.5em;
+  /* background-color: #444444; */
+
+
 }
 
 .login-container form {
   margin-bottom: 1.5rem;
 }
 
-.login-button {
-  width: 100%;
-  padding: 0.8rem;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.login-title {
+  font-size: 1.8em;
 }
 
+.login-button {
+  
+    padding: 0.75rem 2rem;
+    border-radius: 0.7rem;
+    
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+     background-color: #4b4949;
+    margin: 1em;
+    font-family: "Handjet";
+    font-size: 1.2em;
+    border-color: #444444;
+    
+}
 .login-button:hover {
   background: #333;
 }
+
+.email-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #444444;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  margin-top: 1em;
+  background-color: #969696;
+  
+  
+  
+}
+
+.password-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #444444;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  margin-top: 1em;
+  background-color: #969696;
+}
+

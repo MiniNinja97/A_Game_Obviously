@@ -71,6 +71,13 @@ defmodule MyApp.Accounts.User do
       validations on a LiveView form), this option can be set to `false`.
       Defaults to `true`.
   """
+
+  def registration_changeset(user, attrs) do
+  user
+  |> email_changeset(attrs)
+  |> password_changeset(attrs)
+end
+
   def password_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:password])

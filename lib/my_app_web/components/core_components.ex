@@ -273,27 +273,28 @@ defmodule MyAppWeb.CoreComponents do
   end
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
-  def input(assigns) do
-    ~H"""
-    <div class="fieldset mb-2">
-      <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
-        <input
-          type={@type}
-          name={@name}
-          id={@id}
-          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-          class={[
-            @class || "w-full input",
-            @errors != [] && (@error_class || "input-error")
-          ]}
-          {@rest}
-        />
-      </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
-    """
-  end
+ def input(assigns) do
+  ~H"""
+  <div class="form-group">
+    <label :if={@label} class="form-label">
+      {@label}
+    </label>
+
+    <input
+      type={@type}
+      name={@name}
+      id={@id}
+      value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+      class={@class}
+      {@rest}
+    />
+
+    <p :for={msg <- @errors} class="form-error">
+      {msg}
+    </p>
+  </div>
+  """
+end
 
   # Helper used by inputs to generate form errors
   defp error(assigns) do

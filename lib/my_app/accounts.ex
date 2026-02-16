@@ -74,11 +74,17 @@ defmodule MyApp.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  # def register_user(attrs) do
+  #   %User{}
+  #   |> User.email_changeset(attrs)
+  #   |> Repo.insert()
+  # end
+
   def register_user(attrs) do
-    %User{}
-    |> User.email_changeset(attrs)
-    |> Repo.insert()
-  end
+  %User{}
+  |> User.registration_changeset(attrs)
+  |> Repo.insert()
+end
 
   ## Settings
 

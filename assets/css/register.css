@@ -1,0 +1,29 @@
+.register-container {
+      max-width: 400px;
+  margin: 4rem auto;
+  padding: 2rem;
+  font-family: "Handjet";
+  font-weight: bold;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.register-button {
+    padding: 0.75rem 2rem;
+    border-radius: 0.7rem;
+    
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+     background-color: #4b4949;
+    margin: 1em;
+    font-family: "Handjet";
+    font-size: 1.2em;
+    border-color: #444444;
+    
+}
+
+.register-button:hover {
+    background: #333;
+}

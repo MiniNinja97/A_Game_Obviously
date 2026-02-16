@@ -1,48 +1,60 @@
 .home-container {
-    display: flex;
+    display: flex ;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #f3f4f6;
+    background-color: #444444;
+    font-family: "Handjet";
+    font-weight: bolder;
 }
 
 .home-title {
-    font-size: 2rem;
+    font-size: 8rem;
     margin-bottom: 2rem;
-    font-weight: bold;
+    font-weight: bolder;
+    color: #AAA8A6;
+    font-family: "Handjet";
+    text-shadow: #727171 2px 2px 4px, #494949 4px 4px 2px;
 }
 
 .home-button {
-    padding: 0.75rem 2 rem;
-    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 2rem;
+    border-radius: 0.7rem;
     font-weight: bold;
     text-align: center;
     color: white;
     text-decoration: none;
     transition: background-color 0.3s ease;
+    font-size: 2em;
+    box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px;
 }
 
 .home-button-login {
-    background-color: #3b82f6;
+    background-color: #969696;
+    margin: 1em;
 }
 
 .home-button-login:hover {
-    background-color: #2563eb;
+    background-color: #706f6f;
 }
 
 .home-button-register {
-    background-color: #10b981;
+    background-color: #969696;
+    margin: 1em;
 }
 
 .home-button-register:hover {
-    background-color: #059669;
+    background-color: #706f6f;
 }
 
 .home-button-github {
-    background-color: #1f2937;
+    background-color: #969696;
+    margin: 1em;
 
 }
 .home-button-github:hover {
-    background-color: #111827;
+    background-color: #706f6f;
 }
