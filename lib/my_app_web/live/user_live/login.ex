@@ -11,7 +11,7 @@ defmodule MyAppWeb.UserLive.Login do
         <div class="text-center">
           <.header>
             <p class="login-title">LOG IN</p>
-            <:subtitle class="sign-up-link">
+            <:subtitle >
               <%= if @current_scope do %>
                 You need to reauthenticate to perform sensitive actions on your account.
               <% else %>
