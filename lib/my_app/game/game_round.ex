@@ -2,6 +2,10 @@ defmodule MyApp.Game.GameRound do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @doc """
+  Represents a single playthrough of the game, tracking the player's progress, score, and state.
+  """
+
   schema "game_rounds" do
     field :character_name, :string
     field :status, :string, default: "ongoing"
@@ -14,6 +18,11 @@ defmodule MyApp.Game.GameRound do
     timestamps(type: :utc_datetime)
   end
 
+
+  @doc """
+  Changeset for creating/updating game rounds.
+   Validates presence of character_name, status, and user_id.
+  """
   def changeset(game_round, attrs) do
 
     game_round
