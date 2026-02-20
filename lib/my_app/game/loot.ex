@@ -187,24 +187,4 @@ end
   {new_state, [%{type: :log, text: "You leave the items behind and move on."}]}
 end
 
-defp use_item(state, index) do
-  case Enum.at(state.pending_items, index) do
-    nil ->
-      {state, [%{type: :log, text: "Invalid item"}]}
-
-    item ->
-      {player, extra_logs} = apply_item_effect(state.player, item)
-
-      new_state = %State{
-        state |
-        player: player,
-        phase: :road,
-        pending_items: []
-      }
-
-      base_log = %{type: :log, text: "You used #{item.name}."}
-
-      {new_state, [base_log | extra_logs]}
-  end
-end
 end
