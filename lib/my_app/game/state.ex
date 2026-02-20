@@ -15,6 +15,7 @@ defmodule MyApp.Game.State do
     :phase,
     :location,
     road_visits: 0,
+    pending_items: [],
     log: []
   ]
 
@@ -35,6 +36,7 @@ defmodule MyApp.Game.State do
         health: 100,
         attack: 10,
         inventory: [],
+        pending_items: [],
         gold: 10
       },
       room: nil,

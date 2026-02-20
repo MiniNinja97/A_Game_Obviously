@@ -4,7 +4,7 @@ defmodule MyApp.Game.Engine do
   Delegates commands based on current game phase.
   """
 
-  alias MyApp.Game.{State, Road, Room, Combat, Intro}
+  alias MyApp.Game.{State, Road, Room, Combat, Intro, Loot}
 
   @doc """
   Creates a new game state for a user.
@@ -26,6 +26,7 @@ defmodule MyApp.Game.Engine do
         :road -> Road.handle(state, input)
         :room -> Room.handle(state, input)
         :combat -> Combat.handle(state, input)
+        :loot -> Loot.handle(state, input)
         :game_over -> {state, [%{type: :log, text: "Game Over."}]}
       end
 
