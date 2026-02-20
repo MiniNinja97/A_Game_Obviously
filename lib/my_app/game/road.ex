@@ -39,15 +39,6 @@ defmodule MyApp.Game.Road do
 
   end
 
-  def handle_intro(%State{} = state, _command) do
-    texts = [
-      "Detta är obviously ett spel, textbaserat såklart",
-      "Du tar dig vidare genom att klicka på ENTER när du ser pilen ->",
-      "Välkommen btw ->"
-    ]
 
-    new_state = %State{state | phase: :road, log: state.log ++ texts}
-    {new_state, Enum.map(texts, fn t -> %{type: :log, text: t} end)}
-  end
 
 end
