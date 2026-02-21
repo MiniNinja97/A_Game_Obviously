@@ -15,7 +15,12 @@ defmodule MyApp.Application do
       # {MyApp.Worker, arg},
       # Start to serve requests, typically the last entry
       MyAppWeb.Endpoint,
-      MyApp.Repo
+      MyApp.Repo,
+       # <-- Lägg till GameRegistry här
+      {Registry, keys: :unique, name: MyApp.GameRegistry}
+
+      # om du vill kan du också starta en DynamicSupervisor för GameServer
+      # {MyApp.Game.GameSupervisor, []}
 
     ]
 

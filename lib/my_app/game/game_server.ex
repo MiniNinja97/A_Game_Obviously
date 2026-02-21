@@ -44,9 +44,10 @@ defmodule MyApp.Game.GameServer do
    handle_cast/2 hanterar asynkrona kommandon, uppdaterar spelstatus med Engine.handle_input och skickar uppdateringar via PubSub.
   """
   @impl true
-  def init(user_id) do
+def init(user_id) do
   state = Engine.new_game(user_id)
-  {:ok, state}
+
+  {:ok, %{game: state, user_id: user_id}}
 end
 
 
@@ -55,26 +56,26 @@ end
    Returnerar aktuell spelstatus.
   """
 
-  @impl true
-  def handle_call(:get_state, _from, state) do
-    {:reply, state, state}
-  end
+ @impl true
+def handle_call(:get_state, _from, %{game: game} = state) do
+  {:reply, game, state}
+end
 
 
   @doc """
   GenServer callback för att hantera asynkrona kommandon.
    Tar emot kommandon som "move", "attack", etc., uppdaterar spelstatus med Engine.handle_input och skickar uppdateringar via PubSub.
   """
-  @impl true
-  def handle_cast({:command, text}, state) do
-    new_state = Engine.handle_input(state, text)
+ @impl true
+def handle_cast({:command, text}, %{game: game, user_id: user_id} = state) do
+  new_game = Engine.handle_input(game, text)
 
-    Phoenix.PubSub.broadcast(
-      MyApp.PubSub,
-      "game:#{state.player.name}",
-      {:state_updated, new_state}
-    )
+  Phoenix.PubSub.broadcast(
+    MyApp.PubSub,
+    "game:#{user_id}",
+    {:state_updated, new_game}
+  )
 
-    {:noreply, new_state}
-  end
+  {:noreply, %{state | game: new_game}}
+end
 end

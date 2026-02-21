@@ -1,20 +1,16 @@
 defmodule MyAppWeb.GameMenuLive do
   use MyAppWeb, :live_view
 
-
-
-
   @impl true
-  def mount(_params, _session, socket) do
-    user = socket.assigns.current_scope.user
+def mount(_params, _session, socket) do
+  user = socket.assigns.current_scope.user
 
-    {:ok,
-     assign(socket,
-       user: user,
-       has_active_game: false,
-       score: 0
-     )}
-  end
+  {:ok,
+   socket
+   |> assign(:user, user)
+   |> assign(:has_active_game, false)
+   |> assign(:score, 0)}
+end
 
   @impl true
   def render(assigns) do
@@ -28,17 +24,25 @@ defmodule MyAppWeb.GameMenuLive do
       </div>
 
       <div class="menu-section">
-        <button phx-click="new_game">Starta nytt spel</button>
+        <button phx-click="new_game">
+          Starta nytt spel
+        </button>
       </div>
 
       <div :if={@has_active_game} class="menu-section">
-        <button phx-click="continue_game">Fortsätt spel</button>
+        <button phx-click="continue_game">
+          Fortsätt spel
+        </button>
       </div>
 
       <div class="menu-section">
-        <.link href={~p"/users/log-out"} method="delete" class="btn-logout">
-                         Logga ut
-                </.link>
+        <.link
+          href={~p"/users/log-out"}
+          method="delete"
+          class="btn-logout"
+        >
+           Logga ut
+        </.link>
       </div>
     </div>
     """

@@ -2,6 +2,10 @@ defmodule MyAppWeb.Router do
   use MyAppWeb, :router
   import MyAppWeb.UserAuth
 
+
+
+
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -44,12 +48,13 @@ end
  scope "/", MyAppWeb do
   pipe_through [:browser, :require_authenticated_user]
 
-  live_session :require_authenticated_user,
-    on_mount: [{MyAppWeb.UserAuth, :require_authenticated}] do
-      live "/menu", GameMenuLive
-      live "/users/settings", UserLive.Settings, :edit
-      live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
-  end
+ live_session :require_authenticated_user,
+  on_mount: [{MyAppWeb.UserAuth, :require_authenticated}] do
+    live "/menu", GameMenuLive
+    live "/game", GameLive
+    live "/users/settings", UserLive.Settings, :edit
+    live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+end
 
   post "/users/update-password", UserSessionController, :update_password
 end

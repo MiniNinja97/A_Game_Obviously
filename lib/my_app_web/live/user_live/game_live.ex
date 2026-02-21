@@ -1,49 +1,80 @@
-defmodule MyApp.GameLive do
+defmodule MyAppWeb.GameLive do
   use MyAppWeb, :live_view
 
   alias MyApp.Game.GameServer
+
   @impl true
   def mount(_params, _session, socket) do
-    user = socket.asssigns.current_user
+    user = socket.assigns.current_scope.user
 
-    {:ok, _} = GameServer.start_link(user.id)
+    # Starta GameServer om den inte redan kör
+    case GameServer.start_link(user.id) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+    end
 
-    Phoenix.PubSub.subscribe(
-      MyApp.PubSub,
-      "game:#{user.name}"
-    )
+    # Prenumerera på PubSub
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(MyApp.PubSub, "game:#{user.id}")
+    end
 
+    # Hämta initial state
     state = GameServer.get_state(user.id)
 
-    {:ok, assign(socket, state: state, input: "")}
-  end
-  @impl true
-  def handle_event("send_command", %{"command" => cmd}, socket) do
-    GameServer.command(socket.assigns.current_user.id, cmd)
-    {:noreply, assign(socket, input: "")}
-  end
-  @impl true
-  def handle_info({:state_updated, state}, socket) do
-    {:noreply, assign(socket, state: state)}
+    {:ok,
+     socket
+     |> assign(:state, state)
+     |> assign(:input, "")}
   end
 
-   @impl true
+  # När GameServer broadcastar uppdatering
+  @impl true
+  def handle_info({:state_updated, new_state}, socket) do
+    {:noreply, assign(socket, :state, new_state)}
+  end
+
+  # När spelaren skickar input
+  @impl true
+  def handle_event("send_command", %{"command" => command}, socket) do
+    user = socket.assigns.current_scope.user
+
+    GameServer.command(user.id, command)
+
+    {:noreply, assign(socket, :input, "")}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
-    <div class="terminal">
-      <%= for line <- Enum.reverse(@state.log) do %>
-        <div>{line}</div>
-      <% end %>
-    </div>
+    <div class="game-container">
 
-    <form phx-submit="send_command">
-      <input
-        name="command"
-        value={@input}
-        autocomplete="off"
-        placeholder="Skriv command..."
-      />
-    </form>
+      <div class="status">
+        <p><strong>Player:</strong> <%= @state.player.name %></p>
+        <p><strong>Health:</strong> <%= @state.player.health %></p>
+        <p><strong>Gold:</strong> <%= @state.player.gold %></p>
+        <p><strong>Phase:</strong> <%= @state.phase %></p>
+      </div>
+
+      <div class="terminal">
+        <%= for event <- Enum.reverse(Map.get(@state, :log, [])) do %>
+          <div class="log-line">
+            <%= event.text %>
+          </div>
+        <% end %>
+      </div>
+
+      <form phx-submit="send_command">
+        <input
+          type="text"
+          name="command"
+          value={@input}
+          placeholder="Type command..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
+
+    </div>
     """
   end
 end
