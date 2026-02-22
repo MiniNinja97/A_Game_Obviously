@@ -4,7 +4,7 @@ defmodule MyAppWeb.GameLive do
   alias MyApp.Game.GameServer
   alias MyApp.Game.State
 
-  @log_delay 1000
+  @log_delay 1200
 
  @impl true
 def mount(_params, _session, socket) do
@@ -94,12 +94,30 @@ end
   # USER INPUT
   # =====================
 
-  @impl true
-  def handle_event("send_command", %{"command" => command}, socket) do
+ @impl true
+def handle_event("send_command", %{"command" => command}, socket) do
+  state = socket.assigns.state
+
+  if state.phase == :character_creation do
+    # Hantera pre-intro / namn direkt
+    {new_state, events} = MyApp.Game.Intro.handle(state, command)
+    socket =
+      socket
+      |> assign(:state, new_state)
+      |> update(:pending_log, &(&1 ++ events))
+      |> assign(:input, "")
+
+    # starta log-tick om det behövs
+    socket = maybe_start_log_tick(socket)
+
+    {:noreply, socket}
+  else
+    # resten av spelet skickas till GameServer
     user_id = socket.assigns.current_scope.user.id
     GameServer.command(user_id, command)
     {:noreply, assign(socket, :input, "")}
   end
+end
 
   # =====================
   # INTERNAL HELPERS
