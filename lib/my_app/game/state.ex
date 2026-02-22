@@ -1,14 +1,14 @@
 defmodule MyApp.Game.State do
+  @moduledoc """
+  Represents the entire game state.
 
-  @doc """
-  Represents the entire game state, including player stats, current room, phase, and log.
-   This struct is passed around and updated by the Engine and other modules.
-   It serves as the single source of truth for the game's status at any point in time.
-   The log field is a list of events that can be rendered in the UI to show what happened.
-   The phase field determines which module handles player input and what actions are available.
-   The player field contains all relevant information about the player's character, such as health, inventory, etc.
-   The room field holds details about the current location or encounter, which can change as the player moves or fights.
+  This struct is the single source of truth for:
+  - Player data
+  - Current room
+  - Current phase
+  - Log events
   """
+
   defstruct [
     :player,
     :room,
@@ -19,31 +19,43 @@ defmodule MyApp.Game.State do
     log: []
   ]
 
+  @type player :: %{
+          name: String.t(),
+          health: integer(),
+          attack: integer(),
+          intellect: integer(),
+          inventory: list(),
+          gold: integer()
+        }
+
   @type t :: %__MODULE__{
-          player: map(),
+          player: player() | nil,
           room: map() | nil,
           phase: atom(),
-          log: list()
+          location: atom() | nil,
+          road_visits: integer(),
+          pending_items: list(),
+          log: list(map())
         }
 
   @doc """
   Creates a new initial game state.
+  Starts in :character_creation phase.
   """
-  def new(player_name) do
+  def new do
     %__MODULE__{
-      player: %{
-        name: player_name,
-        health: 100,
-        attack: 10,
-        inventory: [],
-        pending_items: [],
-        gold: 10
-      },
+      player: nil,
       room: nil,
-      phase: :intro,
+      phase: :character_creation,
+      location: nil,
+      road_visits: 0,
+      pending_items: [],
       log: [
-        %{type: :log, text: "Welcome, #{player_name}."},
-        %{type: :log, text: "Type commands to play. Try: 'go', 'search', 'attack'."}
+        %{type: :log, text: "Oh well before you can even play this game we have to go through some stuff you and I."},
+        %{type: :log, text: "Whenever you see a '->' click enter or press continue."},
+        %{type: :log, text: "Sometimes I'll give you commands you can write."},
+        %{type: :log, text: "Oh and you obviously need a name for your character."},
+        %{type: :log, text: "Choose something silly like you people always do ->"}
       ]
     }
   end
