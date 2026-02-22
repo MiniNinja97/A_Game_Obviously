@@ -9,13 +9,17 @@ defmodule MyApp.Game.Road do
   ]
 
   @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
-  def handle(%State{phase: :road} = state, "Move") do
+ def handle(%State{phase: :road} = state, command) do
+  cmd = String.trim(command) |> String.downcase()
 
-    texts = Enum.take_random(@road_texts, Enum.random(2..4))
+  if cmd == "move" do
+    texts =
+      Enum.take_random(@road_texts, Enum.random(2..4))
+      |> Enum.map(fn text -> %{type: :log, text: text} end)
+
     new_log = state.log ++ texts
 
     if state.road_visits < 3 do
-
       room = Room.random_room()
       new_state = %State{
         state |
@@ -27,18 +31,12 @@ defmodule MyApp.Game.Road do
       }
 
       {new_state, [%{type: :log, text: "En ny plats dyker upp #{room.name}"}]}
-
     else
       new_state = %State{state | log: new_log}
       {new_state, [%{type: :log, text: "Du ser något långt där borta"}]}
     end
-  end
-
-  def handle(%State{} = state, _command) do
+  else
     {state, [%{type: :log, text: "Huh whut? I u wanna move forward you have to write 'move'"}]}
-
   end
-
-
-
+end
 end

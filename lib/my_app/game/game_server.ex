@@ -3,7 +3,6 @@ defmodule MyApp.Game.GameServer do
 
   alias MyApp.Game.Engine
 
-
   # ==========
   # PUBLIC API
   # ==========
@@ -14,6 +13,10 @@ defmodule MyApp.Game.GameServer do
 
   def command(user_id, text) do
     GenServer.cast(via(user_id), {:command, text})
+  end
+
+  def set_state(user_id, new_state) do
+    GenServer.cast(via(user_id), {:set_state, new_state})
   end
 
   def get_state(user_id) do
@@ -49,11 +52,10 @@ defmodule MyApp.Game.GameServer do
 
   @impl true
   def handle_cast({:command, text}, %{game: game, user_id: user_id} = state) do
-    new_game = Engine.handle_input(game, text)
+    # Engine.handle_input returnerar nu {new_state, events}
+    {new_game, events} = Engine.handle_input(game, text)
 
     # Skicka bara de nya log-events till LiveView
-    events = new_game.log -- game.log
-
     Phoenix.PubSub.broadcast(
       MyApp.PubSub,
       "game:#{user_id}",
@@ -61,5 +63,10 @@ defmodule MyApp.Game.GameServer do
     )
 
     {:noreply, %{state | game: new_game}}
+  end
+
+  @impl true
+  def handle_cast({:set_state, new_state}, state) do
+    {:noreply, %{state | game: new_state}}
   end
 end

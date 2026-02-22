@@ -6,24 +6,27 @@ defmodule MyApp.Game.Engine do
     State.new()
   end
 
-  @spec handle_input(State.t(), String.t()) :: State.t()
+  @spec handle_input(State.t(), String.t()) :: {State.t(), list(map())}
   def handle_input(%State{phase: :character_creation} = state, input) do
-    {new_state, events} = Intro.handle(state, input)
-    updated_logs = state.log ++ events
-    %{new_state | log: updated_logs}
+    # Trimma och ta bort extra citattecken
+    clean_input = String.trim(input) |> String.replace(~r/^"|"$/, "")
+
+    # Intro.handle returnerar {new_state, events}
+    Intro.handle(state, clean_input)
   end
 
   def handle_input(state, input) do
+    clean_input = String.trim(input) |> String.replace(~r/^"|"$/, "")
+
     {new_state, events} =
       case state.phase do
-        :road -> Road.handle(state, input)
-        :room -> Room.handle(state, input)
-        :combat -> Combat.handle(state, input)
-        :loot -> Loot.handle(state, input)
+        :road -> Road.handle(state, clean_input)
+        :room -> Room.handle(state, clean_input)
+        :combat -> Combat.handle(state, clean_input)
+        :loot -> Loot.handle(state, clean_input)
         :game_over -> {state, [%{type: :log, text: "Game Over."}]}
       end
 
-    updated_logs = state.log ++ events
-    %{new_state | log: updated_logs}
+    {new_state, events}
   end
 end

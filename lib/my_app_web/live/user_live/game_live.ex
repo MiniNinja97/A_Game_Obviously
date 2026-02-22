@@ -93,34 +93,68 @@ defmodule MyAppWeb.GameLive do
   # USER INPUT
   # =====================
 
-@impl true
-def handle_event("send_command", %{"command" => command}, socket) do
-  state = socket.assigns.state
+  # OLD HANDLE_EVENT preserved:
+  # @impl true
+  # def handle_event("send_command", %{"command" => command}, socket) do
+  #   state = socket.assigns.state
+  #
+  #   if state.phase == :character_creation and is_nil(state.player) do
+  #     {new_state, events} = Intro.handle(state, command)
+  #
+  #     socket =
+  #       socket
+  #       |> assign(:state, new_state)
+  #       |> update(:displayed_log, &(&1 ++ events)) # direkt i displayed_log så det syns
+  #       |> assign(:input, "")
+  #
+  #     {:noreply, socket}
+  #   else
+  #     # När player finns, skicka input till GameServer
+  #     user_id = socket.assigns.current_scope.user.id
+  #     GameServer.command(user_id, command)
+  #     {:noreply, assign(socket, :input, "")}
+  #   end
+  # end
 
-  if state.phase == :character_creation and is_nil(state.player) do
-    {new_state, events} = Intro.handle(state, command)
+  @impl true
+  def handle_event("send_command", %{"command" => command}, socket) do
+    state = socket.assigns.state
+    command = String.trim(command) |> String.replace(~r/^"|"$/, "")
 
-    socket =
-      socket
-      |> assign(:state, new_state)
-      |> update(:displayed_log, &(&1 ++ events)) # direkt i displayed_log så det syns
-      |> assign(:input, "")
+    cond do
+      # =====================
+      # CHARACTER CREATION
+      # =====================
+      state.phase == :character_creation and is_nil(state.player) ->
+        {new_state, events} = Intro.handle(state, command)
 
-    {:noreply, socket}
-  else
-    # När player finns, skicka input till GameServer
-    user_id = socket.assigns.current_scope.user.id
-    GameServer.command(user_id, command)
-    {:noreply, assign(socket, :input, "")}
+        # Uppdatera både LiveView och GameServer
+        user_id = socket.assigns.current_scope.user.id
+        MyApp.Game.GameServer.set_state(user_id, new_state)
+
+        socket =
+          socket
+          |> assign(:state, new_state)
+          |> update(:displayed_log, &(&1 ++ events))
+          |> assign(:input, "")
+
+        {:noreply, socket}
+
+      # =====================
+      # ALL OTHER PHASES → GameServer
+      # =====================
+      true ->
+        user_id = socket.assigns.current_scope.user.id
+        MyApp.Game.GameServer.command(user_id, command)
+        {:noreply, assign(socket, :input, "")}
+    end
   end
-end
 
   # =====================
   # INTERNAL HELPERS
   # =====================
 
   defp maybe_start_log_tick(socket) do
-    # CHANGE: starta log-tick när det bara finns 1 logg kvar i kö
     if length(socket.assigns.pending_log) == 1 do
       Process.send_after(self(), :log_tick, @log_delay)
     end
@@ -194,7 +228,7 @@ end
             autocomplete="off"
           />
           <button type="submit">
-            <%= if @state.phase == :character_creation, do: "Continue", else: "Send" %>
+            Continue
           </button>
         </form>
 
