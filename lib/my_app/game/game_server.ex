@@ -3,9 +3,6 @@ defmodule MyApp.Game.GameServer do
 
   alias MyApp.Game.Engine
 
-  @doc """
-  GenServer that manages one game session per user.
-  """
 
   # ==========
   # PUBLIC API
@@ -33,9 +30,16 @@ defmodule MyApp.Game.GameServer do
 
   @impl true
   def init(user_id) do
-    game = Engine.new_game()
+    game_state = Engine.new_game()
 
-    {:ok, %{game: game, user_id: user_id}}
+    # Skicka initial log direkt till LiveView
+    Phoenix.PubSub.broadcast(
+      MyApp.PubSub,
+      "game:#{user_id}",
+      {:game_events, game_state.log}
+    )
+
+    {:ok, %{game: game_state, user_id: user_id}}
   end
 
   @impl true
@@ -45,20 +49,17 @@ defmodule MyApp.Game.GameServer do
 
   @impl true
   def handle_cast({:command, text}, %{game: game, user_id: user_id} = state) do
-    {new_game, events} = Engine.handle_input(game, text)
+    new_game = Engine.handle_input(game, text)
 
-    # Lägg till events i loggen här (centraliserat)
-    updated_game = %{
-      new_game
-      | log: new_game.log ++ events
-    }
+    # Skicka bara de nya log-events till LiveView
+    events = new_game.log -- game.log
 
     Phoenix.PubSub.broadcast(
       MyApp.PubSub,
       "game:#{user_id}",
-      {:state_updated, updated_game}
+      {:game_events, events}
     )
 
-    {:noreply, %{state | game: updated_game}}
+    {:noreply, %{state | game: new_game}}
   end
 end
