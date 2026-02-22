@@ -18,6 +18,12 @@ defmodule MyApp.Game.Room do
 
   # ROOM GENERATION
 
+  @spec random_room() :: %{
+          description: <<_::408>>,
+          enemy: %{attack: 10, health: 50, name: <<_::48>>},
+          items: list(),
+          name: any()
+        }
   @doc """
   Generates a random room with an enemy and some items.
   """

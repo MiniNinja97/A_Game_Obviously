@@ -3,57 +3,56 @@ defmodule MyAppWeb.GameLive do
 
   alias MyApp.Game.GameServer
   alias MyApp.Game.State
+  alias MyApp.Game.Intro   # CHANGE: Lagt till alias för Intro
 
   @log_delay 1200
 
- @impl true
-def mount(_params, _session, socket) do
-  user = socket.assigns.current_scope.user
+  @impl true
+  def mount(_params, _session, socket) do
+    user = socket.assigns.current_scope.user
 
-  # Starta GameServer om den inte redan finns
-  case GameServer.start_link(user.id) do
-    {:ok, _pid} -> :ok
-    {:error, {:already_started, _pid}} -> :ok
-  end
-
-  if connected?(socket) do
-    Phoenix.PubSub.subscribe(MyApp.PubSub, "game:#{user.id}")
-
-    state = GameServer.get_state(user.id)
-
-    socket =
-      socket
-      |> assign(:state, state)
-      |> assign(:input, "")
-      |> assign(:seconds_played, 0)
-      |> assign(:displayed_log, [])
-      |> assign(:pending_log, Map.get(state, :log, []))
-
-    # Starta log-tick om det finns loggar
-    if length(socket.assigns.pending_log) > 0 do
-      Process.send_after(self(), :log_tick, @log_delay)
+    # Starta GameServer om den inte redan finns
+    case GameServer.start_link(user.id) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
     end
 
-    :timer.send_interval(1000, self(), :tick)
-    {:ok, socket}
-  else
-    # här tar vi loggarna direkt från State.new()
-    initial_state = State.new()
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(MyApp.PubSub, "game:#{user.id}")
 
-    socket =
-      socket
-      |> assign(:state, initial_state)
-      |> assign(:input, "")
-      |> assign(:seconds_played, 0)
-      |> assign(:displayed_log, [])
-      |> assign(:pending_log, initial_state.log)
+      state = GameServer.get_state(user.id)
 
-    # starta log-tick direkt
-    Process.send_after(self(), :log_tick, @log_delay)
+      socket =
+        socket
+        |> assign(:state, state)
+        |> assign(:input, "")
+        |> assign(:seconds_played, 0)
+        |> assign(:displayed_log, [])
+        |> assign(:pending_log, Map.get(state, :log, []))
 
-    {:ok, socket}
+      if length(socket.assigns.pending_log) > 0 do
+        Process.send_after(self(), :log_tick, @log_delay)
+      end
+
+      :timer.send_interval(1000, self(), :tick)
+      {:ok, socket}
+    else
+      # CHANGE: Använd State.new() för pre-intro när LiveView inte är ansluten
+      initial_state = State.new()
+
+      socket =
+        socket
+        |> assign(:state, initial_state)
+        |> assign(:input, "")
+        |> assign(:seconds_played, 0)
+        |> assign(:displayed_log, [])
+        |> assign(:pending_log, initial_state.log)
+
+      Process.send_after(self(), :log_tick, @log_delay)
+
+      {:ok, socket}
+    end
   end
-end
 
   # =====================
   # HANDLE GAME EVENTS
@@ -94,25 +93,22 @@ end
   # USER INPUT
   # =====================
 
- @impl true
+@impl true
 def handle_event("send_command", %{"command" => command}, socket) do
   state = socket.assigns.state
 
-  if state.phase == :character_creation do
-    # Hantera pre-intro / namn direkt
-    {new_state, events} = MyApp.Game.Intro.handle(state, command)
+  if state.phase == :character_creation and is_nil(state.player) do
+    {new_state, events} = Intro.handle(state, command)
+
     socket =
       socket
       |> assign(:state, new_state)
-      |> update(:pending_log, &(&1 ++ events))
+      |> update(:displayed_log, &(&1 ++ events)) # direkt i displayed_log så det syns
       |> assign(:input, "")
-
-    # starta log-tick om det behövs
-    socket = maybe_start_log_tick(socket)
 
     {:noreply, socket}
   else
-    # resten av spelet skickas till GameServer
+    # När player finns, skicka input till GameServer
     user_id = socket.assigns.current_scope.user.id
     GameServer.command(user_id, command)
     {:noreply, assign(socket, :input, "")}
@@ -124,6 +120,7 @@ end
   # =====================
 
   defp maybe_start_log_tick(socket) do
+    # CHANGE: starta log-tick när det bara finns 1 logg kvar i kö
     if length(socket.assigns.pending_log) == 1 do
       Process.send_after(self(), :log_tick, @log_delay)
     end
