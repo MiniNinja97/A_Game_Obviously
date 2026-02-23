@@ -11,26 +11,22 @@ defmodule MyApp.Game.Combat do
       "attack" ->
         enemy = state.room.enemy
 
-        # ---- PLAYER TURN ----
         roll = Dice.roll(6)
         damage = trunc(state.player.attack * (roll / 10))
-
         new_enemy = %{enemy | health: enemy.health - damage}
 
-        player_log =
-          "#{roll}: You attack the #{enemy.name} for #{damage} damage!"
+        player_log = "#{roll}: You attack the #{enemy.name} for #{damage} damage!"
 
         # Uppdatera state efter player attack
-        state_after_player =
-          state
-          |> put_in([:room, :enemy], new_enemy)
+        new_room = %{state.room | enemy: new_enemy}
+        state_after_player = %{state | room: new_room}
 
-        # Kolla om enemy dog
         if new_enemy.health <= 0 do
-          final_state =
+          final_state = %{
             state_after_player
-            |> Map.put(:phase, :road)
-            |> put_in([:room, :enemy], nil)
+            | phase: :road,
+              room: %{state_after_player.room | enemy: nil}
+          }
 
           {
             final_state,
@@ -40,20 +36,15 @@ defmodule MyApp.Game.Combat do
             ]
           }
         else
-          # ---- ENEMY TURN ----
+          # Enemy turn
           enemy_roll = Dice.roll(6)
           enemy_damage = trunc(enemy.attack * (enemy_roll / 10))
-
-          new_player =
-            %{state.player | health: state.player.health - enemy_damage}
+          new_player = %{state.player | health: state.player.health - enemy_damage}
 
           enemy_log =
             "#{enemy_roll}: The #{enemy.name} attacks you back for #{enemy_damage} damage!"
 
-          updated_state =
-            state_after_player
-            |> Map.put(:player, new_player)
-
+          updated_state = %{state_after_player | player: new_player}
           {final_state, death_logs} = check_player_death(updated_state)
 
           {
@@ -89,8 +80,7 @@ defmodule MyApp.Game.Combat do
         end
 
       _ ->
-        {state,
-         [%{type: :log, text: "Uhm whut? Try 'attack' or 'run'."}]}
+        {state, [%{type: :log, text: "Uhm whut? Try 'attack' or 'run'."}]}
     end
   end
 

@@ -3,7 +3,7 @@ defmodule MyAppWeb.GameLive do
 
   alias MyApp.Game.GameServer
   alias MyApp.Game.State
-  alias MyApp.Game.Intro   # CHANGE: Lagt till alias för Intro
+
 
   @log_delay 1200
 
@@ -116,39 +116,42 @@ defmodule MyAppWeb.GameLive do
   #   end
   # end
 
-  @impl true
-  def handle_event("send_command", %{"command" => command}, socket) do
-    state = socket.assigns.state
-    command = String.trim(command) |> String.replace(~r/^"|"$/, "")
+@impl true
+def handle_event("send_command", %{"command" => command}, socket) do
+  state = socket.assigns.state
+  command = String.trim(command) |> String.replace(~r/^"|"$/, "")
 
-    cond do
-      # =====================
-      # CHARACTER CREATION
-      # =====================
-      state.phase == :character_creation and is_nil(state.player) ->
-        {new_state, events} = Intro.handle(state, command)
+  cond do
+    # =====================
+    # CHARACTER CREATION
+    # =====================
+    state.phase == :character_creation and is_nil(state.player) ->
+      {new_state, events} = MyApp.Game.Intro.handle(state, command)
 
-        # Uppdatera både LiveView och GameServer
-        user_id = socket.assigns.current_scope.user.id
-        MyApp.Game.GameServer.set_state(user_id, new_state)
+      # Uppdatera LiveView (GameServer kan ignoreras här)
+      socket =
+        socket
+        |> assign(:state, new_state)
+        |> update(:displayed_log, &(&1 ++ events))
+        |> assign(:input, "")
 
-        socket =
-          socket
-          |> assign(:state, new_state)
-          |> update(:displayed_log, &(&1 ++ events))
-          |> assign(:input, "")
+      {:noreply, socket}
 
-        {:noreply, socket}
+    # =====================
+    # ALL OTHER PHASES → Engine direkt
+    # =====================
+    true ->
+      {new_state, events} = MyApp.Game.Engine.handle_input(state, command)
 
-      # =====================
-      # ALL OTHER PHASES → GameServer
-      # =====================
-      true ->
-        user_id = socket.assigns.current_scope.user.id
-        MyApp.Game.GameServer.command(user_id, command)
-        {:noreply, assign(socket, :input, "")}
-    end
+      socket =
+        socket
+        |> assign(:state, new_state)
+        |> update(:displayed_log, &(&1 ++ events))
+        |> assign(:input, "")
+
+      {:noreply, socket}
   end
+end
 
   # =====================
   # INTERNAL HELPERS
