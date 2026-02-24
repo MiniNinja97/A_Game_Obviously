@@ -141,31 +141,44 @@ defmodule MyAppWeb.GameLive do
   end
 
   # ENDAST EN continue-handler
-  @impl true
-  def handle_event("continue", %{"command" => command}, socket) do
-    state = socket.assigns.state
-    input = String.trim(command)
+ @impl true
+def handle_event("continue", %{"command" => command}, socket) do
+  state = socket.assigns.state
+  input = String.trim(command)
 
-    cond do
-      # Om vi är i intro och spelaren inte finns men har skrivit namn
-      state.phase == :character_creation and is_nil(state.player) and input != "" ->
-        {new_state, events} = MyApp.Game.Intro.handle(state, input)
+  cond do
+    # Player skriver namn under character_creation
+    state.phase == :character_creation and is_nil(state.player) and input != "" ->
+      {new_state, events} = MyApp.Game.Intro.handle(state, input)
 
-        socket =
-          socket
-          |> assign(:state, new_state)
-          |> update(:displayed_log, &(&1 ++ events))
-          |> assign(:input, "")
-          |> assign(:waiting_for_continue, false)
+      socket =
+        socket
+        |> assign(:state, new_state)
+        |> update(:displayed_log, &(&1 ++ events))
+        |> assign(:input, "")
+        |> assign(:waiting_for_continue, false)
 
-        {:noreply, socket}
+      {:noreply, socket}
 
-      # Annars bara fortsätt log
-      true ->
-        Process.send_after(self(), :log_tick, @log_delay)
-        {:noreply, assign(socket, :waiting_for_continue, false)}
-    end
+    # Player har skrivit ett kommando (move, attack etc)
+    input != "" ->
+      {new_state, events} = MyApp.Game.Engine.handle_input(state, input)
+
+      socket =
+        socket
+        |> assign(:state, new_state)
+        |> update(:displayed_log, &(&1 ++ events))
+        |> assign(:input, "")
+        |> assign(:waiting_for_continue, false)
+
+      {:noreply, socket}
+
+    # Bara fortsätt log som pausade vid ->
+    true ->
+      Process.send_after(self(), :log_tick, @log_delay)
+      {:noreply, assign(socket, :waiting_for_continue, false)}
   end
+end
 
   # =====================
   # INTERNAL HELPERS
@@ -244,15 +257,13 @@ defmodule MyAppWeb.GameLive do
             autocomplete="off"
             onkeydown="if(event.key === 'Enter'){event.preventDefault();}"
           />
-          <%= if @waiting_for_continue do %>
-            <button
-              type="button"
-              phx-click="continue"
-              phx-value-command={@input}
-            >
-              Continue
-            </button>
-          <% end %>
+          <button
+            type="button"
+            phx-click="continue"
+            phx-value-command={@input}
+          >
+            Continue
+          </button>
         </form>
       </div>
     </div>
