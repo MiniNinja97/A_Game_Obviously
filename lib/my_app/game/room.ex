@@ -6,9 +6,6 @@ defmodule MyApp.Game.Room do
   This module handles the logic for the "room" phase of the game.
   """
 
-
-
-
   @room_names [
     "Dark Cave",
     "Abandoned Dungeon",
@@ -47,7 +44,14 @@ defmodule MyApp.Game.Room do
       "go straight forward" ->
         {
           %{state | phase: :combat},
-          [%{type: :log, text: "You see an enemy! Prepare for battle!"}]
+          [
+            %{type: :log, text: "You see an enemy! Prepare for battle!"},
+            %{
+              type: :log,
+              text:
+                "You can 'attack' or 'run'. Pff... running is obviously for pussys, but anyway — what do you want to do?"
+            }
+          ]
         }
 
       "go left" ->
@@ -83,7 +87,6 @@ defmodule MyApp.Game.Room do
     end
   end
 
-
   # LOOT TRIGGER
 
   defp trigger_loot(state) do
@@ -112,19 +115,19 @@ defmodule MyApp.Game.Room do
   end
 
   defp show_inventory(state) do
-  inventory = state.player.inventory || []
+    inventory = state.player.inventory || []
 
-  if inventory == [] do
-    {state, [%{type: :log, text: "Your inventory is empty."}]}
-  else
-    events =
-      inventory
-      |> Enum.with_index(1)
-      |> Enum.map(fn {item, i} ->
-        %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
-      end)
+    if inventory == [] do
+      {state, [%{type: :log, text: "Your inventory is empty."}]}
+    else
+      events =
+        inventory
+        |> Enum.with_index(1)
+        |> Enum.map(fn {item, i} ->
+          %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
+        end)
 
-    {state, events}
+      {state, events}
+    end
   end
-end
 end

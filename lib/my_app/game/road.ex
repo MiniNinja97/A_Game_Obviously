@@ -9,34 +9,54 @@ defmodule MyApp.Game.Road do
   ]
 
   @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
- def handle(%State{phase: :road} = state, command) do
-  cmd = String.trim(command) |> String.downcase()
+  def handle(%State{phase: :road} = state, command) do
+    cmd = String.trim(command) |> String.downcase()
 
-  if cmd == "move" do
-    texts =
-      Enum.take_random(@road_texts, Enum.random(2..4))
-      |> Enum.map(fn text -> %{type: :log, text: text} end)
+    if cmd == "move" do
+      case state.road_visits do
+        # =====================
+        # Första move → visa slumpad road-text
+        # =====================
+        0 ->
+          text = Enum.random(@road_texts)
 
-    new_log = state.log ++ texts
+          new_state = %State{
+            state
+            | road_visits: 1
+          }
 
-    if state.road_visits < 3 do
-      room = Room.random_room()
-      new_state = %State{
-        state |
-        phase: :room,
-        location: :room,
-        room: room,
-        road_visits: state.road_visits + 1,
-        log: new_log
-      }
+          {new_state, [%{type: :log, text: text}]}
 
-      {new_state, [%{type: :log, text: "En ny plats dyker upp #{room.name}"}]}
+        # =====================
+        # Andra move → gå till room
+        # =====================
+        1 ->
+          room = Room.random_room()
+
+          new_state = %State{
+            state
+            | phase: :room,
+              location: :room,
+              room: room,
+              road_visits: 0
+          }
+
+          {
+            new_state,
+            [
+              %{type: :log, text: "En ny plats dyker upp: #{room.name}"},
+              %{type: :log, text: room.description},
+              %{
+                type: :log,
+                text:
+                  "Du kan nu: 'go straight forward', 'go left', 'go right', 'search', eller 'inventory'."
+              }
+            ]
+          }
+      end
     else
-      new_state = %State{state | log: new_log}
-      {new_state, [%{type: :log, text: "Du ser något långt där borta"}]}
+      {state,
+       [%{type: :log, text: "Huh whut? If you wanna move forward you have to write 'move'"}]}
     end
-  else
-    {state, [%{type: :log, text: "Huh whut? I u wanna move forward you have to write 'move'"}]}
   end
-end
 end

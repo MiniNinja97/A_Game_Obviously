@@ -51,11 +51,16 @@ defmodule MyApp.Game.State do
       road_visits: 0,
       pending_items: [],
       log: [
+        %{type: :log, text: "Hi there stranger!"},
+        %{type: :log, text: "Do you wanna play a game?"},
         %{type: :log, text: "Oh well before you can even play this game we have to go through some stuff you and I."},
-        %{type: :log, text: "Whenever you see a '->' click enter or press continue."},
-        %{type: :log, text: "Sometimes I'll give you commands you can write."},
-        %{type: :log, text: "Oh and you obviously need a name for your character."},
-        %{type: :log, text: "Choose something silly like you people always do ->"}
+        %{type: :log, text: "Whenever you see a '->' click enter or press continue. ->"},
+        %{type: :log, text: "Sometimes I'll give you commands you can write.
+        I suggest you pay attention then and use these commands, otherwise this is gonna be a very long and boring game ->"},
+        %{type: :log, text: "Oh and you obviously need a name for your character before we can start. ->"},
+        %{type: :log, text: "Choose something silly like you people always do"},
+        %{type: :log, text: "Go on then I don't have all day, write that bloody name of yours"},
+        %{type: :log, text: "And then press enter or continue, yea yea ->"}
       ]
     }
   end
