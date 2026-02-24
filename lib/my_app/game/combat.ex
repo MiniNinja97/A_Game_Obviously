@@ -8,53 +8,55 @@ defmodule MyApp.Game.Combat do
   @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
   def handle(%State{phase: :combat} = state, command) do
     case command do
-      "attack" ->
-        enemy = state.room.enemy
+    "attack" ->
+  enemy = state.room.enemy
 
-        roll = Dice.roll(6)
-        damage = trunc(state.player.attack * (roll / 10))
-        new_enemy = %{enemy | health: enemy.health - damage}
+  # Player attack: tärning 1..12
+  roll = Dice.roll(12)
+  damage = trunc(state.player.attack * (roll / 6))  # Mer kännbart!
 
-        player_log = "#{roll}: You attack the #{enemy.name} for #{damage} damage!"
+  new_enemy = %{enemy | health: enemy.health - damage}
 
-        # Uppdatera state efter player attack
-        new_room = %{state.room | enemy: new_enemy}
-        state_after_player = %{state | room: new_room}
+  player_log = "#{roll}: You attack the #{enemy.name} for #{damage} damage!"
 
-        if new_enemy.health <= 0 do
-          final_state = %{
-            state_after_player
-            | phase: :road,
-              room: %{state_after_player.room | enemy: nil}
-          }
+  # Uppdatera state efter player attack
+  new_room = %{state.room | enemy: new_enemy}
+  state_after_player = %{state | room: new_room}
 
-          {
-            final_state,
-            [
-              %{type: :log, text: player_log},
-              %{type: :log, text: "🏆 You defeated the #{enemy.name}!"}
-            ]
-          }
-        else
-          # Enemy turn
-          enemy_roll = Dice.roll(6)
-          enemy_damage = trunc(enemy.attack * (enemy_roll / 10))
-          new_player = %{state.player | health: state.player.health - enemy_damage}
+  if new_enemy.health <= 0 do
+    final_state = %{
+      state_after_player
+      | phase: :road,
+        room: %{state_after_player.room | enemy: nil}
+    }
 
-          enemy_log =
-            "#{enemy_roll}: The #{enemy.name} attacks you back for #{enemy_damage} damage!"
+    {
+      final_state,
+      [
+        %{type: :log, text: player_log},
+        %{type: :log, text: "You defeated the #{enemy.name}!"}
+      ]
+    }
+  else
+    # Enemy turn: tärning 1..12
+    enemy_roll = Dice.roll(12)
+    enemy_damage = trunc(enemy.attack * (enemy_roll / 6))
+    new_player = %{state.player | health: state.player.health - enemy_damage}
 
-          updated_state = %{state_after_player | player: new_player}
-          {final_state, death_logs} = check_player_death(updated_state)
+    enemy_log =
+      "#{enemy_roll}: The #{enemy.name} attacks you back for #{enemy_damage} damage!"
 
-          {
-            final_state,
-            [
-              %{type: :log, text: player_log},
-              %{type: :log, text: enemy_log}
-            ] ++ death_logs
-          }
-        end
+    updated_state = %{state_after_player | player: new_player}
+    {final_state, death_logs} = check_player_death(updated_state)
+
+    {
+      final_state,
+      [
+        %{type: :log, text: player_log},
+        %{type: :log, text: enemy_log}
+      ] ++ death_logs
+    }
+  end
 
       "run" ->
         roll = Dice.roll(6)
@@ -92,7 +94,7 @@ defmodule MyApp.Game.Combat do
 
       {
         new_state,
-        [%{type: :log, text: "💀 You were slain in battle!"}]
+        [%{type: :log, text: "You were slain in battle!"}]
       }
     else
       {state, []}
