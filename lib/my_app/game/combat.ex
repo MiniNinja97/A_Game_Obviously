@@ -11,15 +11,32 @@ defmodule MyApp.Game.Combat do
     "attack" ->
   enemy = state.room.enemy
 
-  # Player attack: tärning 1..12
+  # Player attack roll
   roll = Dice.roll(12)
-  damage = trunc(state.player.attack * (roll / 6))  # Mer kännbart!
+
+  {damage, player_log} =
+    cond do
+      roll >= 11 ->
+        # Crit! Extra starkt
+        dmg = trunc(state.player.attack * (roll / 3))
+        log = "#{roll}: CRITICAL HIT! You smash the #{enemy.name} for #{dmg} damage!"
+        {dmg, log}
+
+      roll <= 2 ->
+        # Miss! Roligt dåligt slag
+        dmg = trunc(state.player.attack * (roll / 12))  # nästan inget
+        log =
+          "#{roll}: OOPS! You trip and barely hit the #{enemy.name} for #{dmg} damage!"
+        {dmg, log}
+
+      true ->
+        # Normalt slag
+        dmg = trunc(state.player.attack * (roll / 6))
+        log = "#{roll}: You attack the #{enemy.name} for #{dmg} damage."
+        {dmg, log}
+    end
 
   new_enemy = %{enemy | health: enemy.health - damage}
-
-  player_log = "#{roll}: You attack the #{enemy.name} for #{damage} damage!"
-
-  # Uppdatera state efter player attack
   new_room = %{state.room | enemy: new_enemy}
   state_after_player = %{state | room: new_room}
 
@@ -38,7 +55,7 @@ defmodule MyApp.Game.Combat do
       ]
     }
   else
-    # Enemy turn: tärning 1..12
+    # Enemy turn
     enemy_roll = Dice.roll(12)
     enemy_damage = trunc(enemy.attack * (enemy_roll / 6))
     new_player = %{state.player | health: state.player.health - enemy_damage}
