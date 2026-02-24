@@ -8,82 +8,108 @@ defmodule MyApp.Game.Combat do
   @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
   def handle(%State{phase: :combat} = state, command) do
     case command do
-    "attack" ->
-  enemy = state.room.enemy
+      "attack" ->
+        enemy = state.room.enemy
 
-  # Player attack roll
-  roll = Dice.roll(12)
+        # Player attack roll (med crit/miss)
+        roll = Dice.roll(12)
 
-  {damage, player_log} =
-    cond do
-      roll >= 11 ->
-        # Crit! Extra starkt
-        dmg = trunc(state.player.attack * (roll / 3))
-        log = "#{roll}: CRITICAL HIT! You smash the #{enemy.name} for #{dmg} damage!"
-        {dmg, log}
+        {damage, player_log} =
+          cond do
+            roll >= 11 ->
+              dmg = trunc(state.player.attack * (roll / 3))
+              log = "#{roll}: CRITICAL HIT! You smash the #{enemy.name} for #{dmg} damage!"
+              {dmg, log}
 
-      roll <= 2 ->
-        # Miss! Roligt dåligt slag
-        dmg = trunc(state.player.attack * (roll / 12))  # nästan inget
-        log =
-          "#{roll}: OOPS! You trip and barely hit the #{enemy.name} for #{dmg} damage!"
-        {dmg, log}
+            roll <= 2 ->
+              dmg = trunc(state.player.attack * (roll / 12))
 
-      true ->
-        # Normalt slag
-        dmg = trunc(state.player.attack * (roll / 6))
-        log = "#{roll}: You attack the #{enemy.name} for #{dmg} damage."
-        {dmg, log}
-    end
+              log =
+                "#{roll}: OOPS! You trip and barely hit the #{enemy.name} for #{dmg} damage!"
 
-  new_enemy = %{enemy | health: enemy.health - damage}
-  new_room = %{state.room | enemy: new_enemy}
-  state_after_player = %{state | room: new_room}
+              {dmg, log}
 
-  if new_enemy.health <= 0 do
-    final_state = %{
-      state_after_player
-      | phase: :road,
-        room: %{state_after_player.room | enemy: nil}
-    }
+            true ->
+              dmg = trunc(state.player.attack * (roll / 6))
+              log = "#{roll}: You attack the #{enemy.name} for #{dmg} damage."
+              {dmg, log}
+          end
 
-    {
-      final_state,
-      [
-        %{type: :log, text: player_log},
-        %{type: :log, text: "You defeated the #{enemy.name}!"}
-      ]
-    }
-  else
-    # Enemy turn
-    enemy_roll = Dice.roll(12)
-    enemy_damage = trunc(enemy.attack * (enemy_roll / 6))
-    new_player = %{state.player | health: state.player.health - enemy_damage}
+        new_enemy = %{enemy | health: enemy.health - damage}
+        new_room = %{state.room | enemy: new_enemy}
+        state_after_player = %{state | room: new_room}
 
-    enemy_log =
-      "#{enemy_roll}: The #{enemy.name} attacks you back for #{enemy_damage} damage!"
+        if new_enemy.health <= 0 do
+          # Combat vunnen → belöning
+          new_player =
+            state_after_player.player
+            |> Map.update!(:health, &(&1 + 10))
+            |> Map.update!(:attack, &(&1 + 10))
+            # +1 XP, lägg till om du har xp
+            |> Map.update(:xp, 0, &(&1 + 1))
 
-    updated_state = %{state_after_player | player: new_player}
-    {final_state, death_logs} = check_player_death(updated_state)
+          final_state = %{
+            state_after_player
+            | phase: :road,
+              room: %{state_after_player.room | enemy: nil},
+              player: new_player
+          }
 
-    {
-      final_state,
-      [
-        %{type: :log, text: player_log},
-        %{type: :log, text: enemy_log}
-      ] ++ death_logs
-    }
-  end
+          {
+            final_state,
+            [
+              %{type: :log, text: player_log},
+              %{
+                type: :log,
+                text: "You defeated the #{enemy.name}! You gain +10 Health and +10 Attack!"
+              }
+            ]
+          }
+        else
+          # Enemy turn
+          enemy_roll = Dice.roll(12)
+          enemy_damage = trunc(enemy.attack * (enemy_roll / 6))
+
+          new_player = %{
+            state_after_player.player
+            | health: state_after_player.player.health - enemy_damage
+          }
+
+          enemy_log =
+            "#{enemy_roll}: The #{enemy.name} attacks you back for #{enemy_damage} damage!"
+
+          updated_state = %{state_after_player | player: new_player}
+          {final_state, death_logs} = check_player_death(updated_state)
+
+          {
+            final_state,
+            [
+              %{type: :log, text: player_log},
+              %{type: :log, text: enemy_log}
+            ] ++ death_logs
+          }
+        end
 
       "run" ->
         roll = Dice.roll(6)
 
         if roll >= 4 do
+          # Lyckad run → belöning intellect
+          new_player = Map.update(state.player, :intellect, 0, &(&1 + 10))
+
           {
-            state
-            |> Map.put(:phase, :road)
-            |> Map.put(:room, nil),
-            [%{type: :log, text: "You successfully ran away!"}]
+            %{
+              state
+              | phase: :road,
+                room: nil,
+                player: new_player
+            },
+            [
+              %{
+                type: :log,
+                text: "You successfully ran away! +10 Intellect for quick thinking!"
+              }
+            ]
           }
         else
           {
