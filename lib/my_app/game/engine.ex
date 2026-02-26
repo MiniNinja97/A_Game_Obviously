@@ -1,5 +1,5 @@
 defmodule MyApp.Game.Engine do
-  alias MyApp.Game.{State, Intro, Road, Room, Combat, Loot}
+  alias MyApp.Game.{State, Intro, Road, Room, Combat, Loot, InventoryPhase}
 
   @spec new_game() :: State.t()
   def new_game do
@@ -24,6 +24,7 @@ defmodule MyApp.Game.Engine do
         :room -> Room.handle(state, clean_input)
         :combat -> Combat.handle(state, clean_input)
         :loot -> Loot.handle(state, clean_input)
+        :inventory -> InventoryPhase.handle(state, clean_input)
         :game_over -> {state, [%{type: :log, text: "Game Over."}]}
       end
 

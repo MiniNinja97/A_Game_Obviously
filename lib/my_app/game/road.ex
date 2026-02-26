@@ -70,19 +70,27 @@ defmodule MyApp.Game.Road do
   # INVENTORY LOGIC
   # =====================
   defp show_inventory(state) do
-    inventory = state.player.inventory || []
+  inventory = state.player.inventory || []
 
-    if inventory == [] do
-      {state, [%{type: :log, text: "Your inventory is empty. You only have 10 gold."}]}
-    else
-      events =
-        inventory
-        |> Enum.with_index(1)
-        |> Enum.map(fn {item, i} ->
-          %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
-        end)
+  if inventory == [] do
+    {state, [%{type: :log, text: "Your inventory is empty."}]}
+  else
+    item_logs =
+      Enum.with_index(inventory, 1)
+      |> Enum.map(fn {item, i} ->
+        %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
+      end)
 
-      {state, events}
-    end
+    action_log = %{
+      type: :log,
+      text: "Type: use 1 / leave 1"
+    }
+
+    new_state = %State{
+      state | phase: :inventory
+    }
+
+    {new_state, item_logs ++ [action_log]}
   end
+end
 end

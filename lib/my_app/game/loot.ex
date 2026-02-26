@@ -82,25 +82,42 @@ defp check_death(state, player) do
   end
 end
 
-  defp store_item(state, index) do
-    case Enum.at(state.pending_items, index) do
-      nil ->
-        {state, [%{type: :log, text: "Invalid item"}]}
+ defp store_item(state, index) do
+  alias MyApp.Game.Inventory
 
-        item ->
-          new_inventory = state.player.inventory ++ [item]
-          player = %{state.player | inventory: new_inventory}
+  case Enum.at(state.pending_items, index) do
+    nil ->
+      {state, [%{type: :log, text: "Invalid item"}]}
+
+    item ->
+      case Inventory.add(state.player.inventory, item) do
+        {:error, :full} ->
+          {state, [%{type: :log, text: "Your inventory is full!"}]}
+
+        {:ok, new_inventory} ->
+          remaining_items = List.delete_at(state.pending_items, index)
+
+          new_phase =
+            if remaining_items == [] do
+              :road
+            else
+              :loot
+            end
 
           new_state = %State{
             state |
-            player: player,
-            phase: :road,
-            pending_items: []
+            player: %{state.player | inventory: new_inventory},
+            pending_items: remaining_items,
+            phase: new_phase
           }
-          {new_state, [%{type: :log, text: "You stored #{item.name} in your inventory."}]}
 
-    end
+          {
+            new_state,
+            [%{type: :log, text: "You stored #{item.name}."}]
+          }
+      end
   end
+end
 
 defp apply_item_effect(player, item) do
   old_health = player.health
