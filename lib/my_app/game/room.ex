@@ -16,10 +16,10 @@ defmodule MyApp.Game.Room do
   # ROOM GENERATION
 
   @spec random_room() :: %{
-          description: <<_::408>>,
-          enemy: %{attack: 10, health: 50, name: <<_::48>>},
+          description: String.t(),
+          enemy: %{attack: integer(), health: integer(), name: String.t()},
           items: list(),
-          name: any()
+          name: String.t()
         }
   @doc """
   Generates a random room with an enemy and some items.
@@ -34,13 +34,13 @@ defmodule MyApp.Game.Room do
   end
 
   # COMMAND HANDLING
-
   @doc """
-  Parses player commands related to room navigation and searching.
+  Parses player commands related to room navigation, searching, and inventory.
+  Works for both :room and :road phases.
   """
   @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
-  def handle(%State{phase: :room} = state, command) do
-    case command do
+  def handle(%State{phase: phase} = state, command) when phase in [:room, :road] do
+    case String.downcase(command) do
       "go straight forward" ->
         {
           %{state | phase: :combat},
@@ -60,7 +60,7 @@ defmodule MyApp.Game.Room do
           [
             %{
               type: :log,
-              text: "Woops, clumsy dimwit! Yoy just fell dow a huge whole and died! Game Over! :D"
+              text: "Woops, clumsy dimwit! You just fell down a huge hole and died! Game Over! :D"
             }
           ]
         }
@@ -80,7 +80,7 @@ defmodule MyApp.Game.Room do
           [
             %{
               type: :log,
-              text: "Uhm whut?. Try 'go straight forward', 'go left', 'go right', or 'search'."
+              text: "Uhm whut? Try 'go straight forward', 'go left', 'go right', 'search', or 'inventory'."
             }
           ]
         }
@@ -88,7 +88,6 @@ defmodule MyApp.Game.Room do
   end
 
   # LOOT TRIGGER
-
   defp trigger_loot(state) do
     items = state.room.items || []
 
@@ -114,18 +113,24 @@ defmodule MyApp.Game.Room do
     end
   end
 
+  # SHOW INVENTORY
   defp show_inventory(state) do
     inventory = state.player.inventory || []
 
     if inventory == [] do
       {state, [%{type: :log, text: "Your inventory is empty."}]}
     else
+      # Visa guld först
+      gold_items = Enum.filter(inventory, &(&1.type == :gold))
+      other_items = Enum.filter(inventory, &(&1.type != :gold))
+
       events =
-        inventory
+        (gold_items ++ other_items)
         |> Enum.with_index(1)
         |> Enum.map(fn {item, i} ->
-          %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
+          "#{i}. #{item.name} (#{item.type}: #{item.value})"
         end)
+        |> Enum.map(&%{type: :log, text: &1})
 
       {state, events}
     end
