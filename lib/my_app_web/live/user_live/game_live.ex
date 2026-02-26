@@ -141,41 +141,45 @@ defmodule MyAppWeb.GameLive do
   end
 
   # ENDAST EN continue-handler
- @impl true
+  @impl true
 def handle_event("continue", %{"command" => command}, socket) do
   state = socket.assigns.state
   input = String.trim(command)
 
   cond do
-    # Player skriver namn under character_creation
+    # ===== CHARACTER CREATION =====
     state.phase == :character_creation and is_nil(state.player) and input != "" ->
       {new_state, events} = MyApp.Game.Intro.handle(state, input)
 
       socket =
         socket
         |> assign(:state, new_state)
-        |> update(:displayed_log, &(&1 ++ events))
+        |> update(:pending_log, &(&1 ++ events))
         |> assign(:input, "")
         |> assign(:waiting_for_continue, false)
 
+      Process.send_after(self(), :log_tick, 10)
+
       {:noreply, socket}
 
-    # Player har skrivit ett kommando (move, attack etc)
+    # ===== NORMAL GAME COMMANDS =====
     input != "" ->
       {new_state, events} = MyApp.Game.Engine.handle_input(state, input)
 
       socket =
         socket
         |> assign(:state, new_state)
-        |> update(:displayed_log, &(&1 ++ events))
+        |> update(:pending_log, &(&1 ++ events))
         |> assign(:input, "")
         |> assign(:waiting_for_continue, false)
 
+      Process.send_after(self(), :log_tick, 10)
+
       {:noreply, socket}
 
-    # Bara fortsätt log som pausade vid ->
+    # ===== JUST CONTINUE LOG =====
     true ->
-      Process.send_after(self(), :log_tick, @log_delay)
+      Process.send_after(self(), :log_tick, 10)
       {:noreply, assign(socket, :waiting_for_continue, false)}
   end
 end
