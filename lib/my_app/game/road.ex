@@ -81,13 +81,12 @@ defmodule MyApp.Game.Road do
         %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
       end)
 
-    action_log = %{
-      type: :log,
-      text: "Type: use 1 / leave 1"
-    }
+    action_log = %{type: :log, text: "Type: use 1 / store 1 / leave 1 / exit"}
 
     new_state = %State{
-      state | phase: :inventory
+      state |
+      previous_phase: state.phase,  # <-- spara nuvarande fas
+      phase: :inventory
     }
 
     {new_state, item_logs ++ [action_log]}

@@ -13,6 +13,7 @@ defmodule MyApp.Game.State do
     :player,
     :room,
     :phase,
+    :previous_phase,
     :location,
     road_visits: 0,
     pending_items: [],
