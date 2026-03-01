@@ -6,17 +6,19 @@ defmodule MyApp.Game.GameRound do
   Represents a single playthrough of the game, tracking the player's progress, score, and state.
   """
 
-  schema "game_rounds" do
-    field :character_name, :string
-    field :status, :string, default: "ongoing"
-    field :score, :integer, default: 0
-    field :started_at, :utc_datetime
-    field :ended_at, :utc_datetime
-    field :state, :map, default: %{}
-    belongs_to :user, MyApp.Accounts.User
+ schema "game_rounds" do
+  field :character_name, :string
+  field :status, :string, default: "ongoing"
 
-    timestamps(type: :utc_datetime)
-  end
+  field :started_at, :utc_datetime
+  field :finished_at, :utc_datetime
+
+  field :state, :map, default: %{}
+
+  belongs_to :user, MyApp.Accounts.User
+
+  timestamps(type: :utc_datetime)
+end
 
 
   @doc """
@@ -29,9 +31,8 @@ defmodule MyApp.Game.GameRound do
     |> cast(attrs, [
       :character_name,
       :status,
-      :score,
       :started_at,
-      :ended_at,
+      :finished_at,
       :user_id,
       :state
     ])

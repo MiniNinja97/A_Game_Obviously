@@ -37,9 +37,10 @@
 
 defmodule MyApp.Game.Intro do
   alias MyApp.Game.State
+  alias MyApp.Game
 
-  @spec handle(State.t(), String.t()) :: {State.t(), list(map())}
-  def handle(%State{phase: :character_creation} = state, name) do
+  @spec handle(State.t(), String.t(), map()) :: {State.t(), list(map())}
+  def handle(%State{phase: :character_creation} = state, name, game_round) do
     clean_name = String.trim(name)
 
     if clean_name == "" do
@@ -55,6 +56,9 @@ defmodule MyApp.Game.Intro do
       }
 
       new_state = %State{state | player: player, phase: :road, location: :road}
+
+      # Spara namnet direkt i databasen
+      Game.update_game(game_round, %{character_name: clean_name})
 
       events = [
         %{type: :log, text: "Nice. #{clean_name} it is."},

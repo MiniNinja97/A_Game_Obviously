@@ -135,10 +135,10 @@ defmodule MyApp.Game.Combat do
     if state.player.health <= 0 do
       new_state = %{state | phase: :game_over}
 
-      {
+      MyApp.Game.maybe_game_over(
         new_state,
-        [%{type: :log, text: "You were slain in battle!"}]
-      }
+        "You were slain in battle!"
+      )
     else
       {state, []}
     end

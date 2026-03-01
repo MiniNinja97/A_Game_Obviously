@@ -67,31 +67,30 @@ defmodule MyAppWeb.GameLive do
     {:noreply, socket}
   end
 
- @impl true
-def handle_info(:log_tick, socket) do
-  case socket.assigns.pending_log do
-    [next | rest] ->
-      socket =
-        socket
-        |> update(:displayed_log, &(&1 ++ [next]))
-        |> assign(:pending_log, rest)
+  @impl true
+  def handle_info(:log_tick, socket) do
+    case socket.assigns.pending_log do
+      [next | rest] ->
+        socket =
+          socket
+          |> update(:displayed_log, &(&1 ++ [next]))
+          |> assign(:pending_log, rest)
 
-      if String.trim_trailing(next.text) |> String.ends_with?("->") do
-        {:noreply, assign(socket, :waiting_for_continue, true)}
-      else
-        Process.send_after(self(), :log_tick, @log_delay)
-        {:noreply, socket}
-      end
+        if String.trim_trailing(next.text) |> String.ends_with?("->") do
+          {:noreply, assign(socket, :waiting_for_continue, true)}
+        else
+          Process.send_after(self(), :log_tick, @log_delay)
+          {:noreply, socket}
+        end
 
-    [] ->
-      # 🔹 Alla loggar visade → navigera om vi är i game_over/victory
-      if socket.assigns.state.phase in [:game_over, :victory] do
-        {:noreply, push_navigate(socket, to: "/menu")}
-      else
-        {:noreply, socket}
-      end
+      [] ->
+        if socket.assigns.state.phase in [:game_over, :victory] do
+          {:noreply, push_navigate(socket, to: "/menu")}
+        else
+          {:noreply, socket}
+        end
+    end
   end
-end
 
   @impl true
   def handle_info(:tick, socket) do
@@ -109,32 +108,7 @@ end
 
   @impl true
   def handle_event("send_command", %{"command" => command}, socket) do
-    state = socket.assigns.state
-    command = String.trim(command)
-
-    cond do
-      state.phase == :character_creation and is_nil(state.player) ->
-        {new_state, events} = MyApp.Game.Intro.handle(state, command)
-
-        socket =
-          socket
-          |> assign(:state, new_state)
-          |> update(:displayed_log, &(&1 ++ events))
-          |> assign(:input, "")
-
-        {:noreply, socket}
-
-      true ->
-        {new_state, events} = MyApp.Game.Engine.handle_input(state, command)
-
-        socket =
-          socket
-          |> assign(:state, new_state)
-          |> update(:displayed_log, &(&1 ++ events))
-          |> assign(:input, "")
-
-        {:noreply, socket}
-    end
+    process_input(socket, command)
   end
 
   @impl true
@@ -147,58 +121,62 @@ end
     {:noreply, socket}
   end
 
-  # ENDAST EN continue-handler
- @impl true
-def handle_event("continue", %{"command" => command}, socket) do
-  state = socket.assigns.state
-  input = String.trim(command)
-
-  cond do
-    # ===== CHARACTER CREATION =====
-    state.phase == :character_creation and is_nil(state.player) and input != "" ->
-      {new_state, events} = MyApp.Game.Intro.handle(state, input)
-
-      socket =
-        socket
-        |> assign(:state, new_state)
-        |> update(:pending_log, &(&1 ++ events))
-        |> assign(:input, "")
-        |> assign(:waiting_for_continue, false)
-
-      Process.send_after(self(), :log_tick, 10)
-      {:noreply, socket}
-
-   # ===== NORMAL GAME COMMANDS =====
-input != "" ->
-  {new_state, events} = MyApp.Game.Engine.handle_input(state, input)
-
-  socket =
-    socket
-    |> assign(:state, new_state)
-    |> update(:pending_log, &(&1 ++ events))
-    |> assign(:input, "")
-    |> assign(:waiting_for_continue, false)
-
-  # 🔹 Om spelet är över, starta log_tick för att visa alla loggar först
-  if new_state.phase in [:game_over, :victory] do
-    # Skicka :go_to_menu först när pending_log är tom
-    Process.send_after(self(), :log_tick, 10)
-  else
-    Process.send_after(self(), :log_tick, 10)
+  @impl true
+  def handle_event("continue", %{"command" => command}, socket) do
+    process_input(socket, command)
   end
-
-  {:noreply, socket}
-
-    # ===== JUST CONTINUE LOG =====
-    true ->
-      Process.send_after(self(), :log_tick, 10)
-      {:noreply, assign(socket, :waiting_for_continue, false)}
-  end
-end
 
   # =====================
   # INTERNAL HELPERS
   # =====================
+
+  # Samlar logik för att processa input oavsett send_command eller continue
+  defp process_input(socket, input) do
+    state = socket.assigns.state
+    game_round = state.game_round
+    input = String.trim(input)
+
+    cond do
+      # ===== CHARACTER CREATION =====
+      state.phase == :character_creation and is_nil(state.player) and input != "" ->
+        {new_state, events} = MyApp.Game.Intro.handle(state, input, game_round)
+
+        socket =
+          socket
+          |> assign(:state, new_state)
+          |> update(:pending_log, &(&1 ++ events))
+          |> assign(:input, "")
+          |> assign(:waiting_for_continue, false)
+
+        Process.send_after(self(), :log_tick, 10)
+        {:noreply, socket}
+
+      # ===== NORMAL GAME COMMANDS =====
+      input != "" ->
+        game_round = state.game_round
+        {new_state, events} = MyApp.Game.Engine.handle_input(state, input, game_round)
+
+        socket =
+          socket
+          |> assign(:state, new_state)
+          |> update(:pending_log, &(&1 ++ events))
+          |> assign(:input, "")
+          |> assign(:waiting_for_continue, false)
+
+        if new_state.phase in [:game_over, :victory] do
+          Process.send_after(self(), :log_tick, 10)
+        else
+          Process.send_after(self(), :log_tick, 10)
+        end
+
+        {:noreply, socket}
+
+      # ===== JUST CONTINUE LOG =====
+      true ->
+        Process.send_after(self(), :log_tick, 10)
+        {:noreply, assign(socket, :waiting_for_continue, false)}
+    end
+  end
 
   defp maybe_start_log_tick(socket) do
     if length(socket.assigns.pending_log) == 1 do

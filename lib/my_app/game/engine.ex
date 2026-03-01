@@ -6,16 +6,20 @@ defmodule MyApp.Game.Engine do
     State.new()
   end
 
-  @spec handle_input(State.t(), String.t()) :: {State.t(), list(map())}
-  def handle_input(%State{phase: :character_creation} = state, input) do
+  # =========================
+  # Hantera input från spelaren
+  # =========================
+  # Tar nu emot game_round som tredje argument
+  @spec handle_input(State.t(), String.t(), any()) :: {State.t(), list(map())}
+  def handle_input(%State{phase: :character_creation} = state, input, game_round) do
     # Trimma och ta bort extra citattecken
     clean_input = String.trim(input) |> String.replace(~r/^"|"$/, "")
 
-    # Intro.handle returnerar {new_state, events}
-    Intro.handle(state, clean_input)
+    # Kalla på Intro.handle/3 som uppdaterar game_round direkt
+    Intro.handle(state, clean_input, game_round)
   end
 
-  def handle_input(state, input) do
+  def handle_input(state, input, _game_round) do
     clean_input = String.trim(input) |> String.replace(~r/^"|"$/, "")
 
     {new_state, events} =

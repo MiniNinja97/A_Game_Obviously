@@ -29,10 +29,8 @@ defmodule MyApp.Game.Room do
       name: Enum.random(@room_names),
       enemy: %{name: "Goblin", health: 50, attack: 10},
       items: ItemGenerator.generate_items(),
-
       description: "Du kliver in i ett rum. Det luktar fukt och mögel."
     }
-
   end
 
   # COMMAND HANDLING
@@ -57,15 +55,12 @@ defmodule MyApp.Game.Room do
         }
 
       "go left" ->
-        {
-          %{state | phase: :game_over},
-          [
-            %{
-              type: :log,
-              text: "Woops, clumsy dimwit! You just fell down a huge hole and died! Game Over! :D"
-            }
-          ]
-        }
+        new_state = %{state | phase: :game_over}
+
+        MyApp.Game.maybe_game_over(
+          new_state,
+          "Woops, clumsy dimwit! You just fell down a huge hole and died! Game Over! :D"
+        )
 
       "go right" ->
         trigger_loot(state)
@@ -82,7 +77,8 @@ defmodule MyApp.Game.Room do
           [
             %{
               type: :log,
-              text: "Uhm whut? Try 'go straight forward', 'go left', 'go right', 'search', or 'inventory'."
+              text:
+                "Uhm whut? Try 'go straight forward', 'go left', 'go right', 'search', or 'inventory'."
             }
           ]
         }
@@ -91,55 +87,56 @@ defmodule MyApp.Game.Room do
 
   # LOOT TRIGGER
   defp trigger_loot(state) do
-  items = state.room.items || []
+    items = state.room.items || []
 
-  if items == [] do
-    {state, [%{type: :log, text: "The room is empty. Nothing to loot."}]}
-  else
-    item_logs =
-      Enum.with_index(items, 1)
-      |> Enum.map(fn {item, i} ->
-        %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
-      end)
+    if items == [] do
+      {state, [%{type: :log, text: "The room is empty. Nothing to loot."}]}
+    else
+      item_logs =
+        Enum.with_index(items, 1)
+        |> Enum.map(fn {item, i} ->
+          %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
+        end)
 
-    action_log = %{
-      type: :log,
-      text: "Type: use 1 / store 1 / leave 1"
-    }
+      action_log = %{
+        type: :log,
+        text: "Type: use 1 / store 1 / leave 1"
+      }
 
-    new_state = %State{
-      state
-      | phase: :loot,
-        pending_items: items,
-        previous_phase: state.phase
-    }
+      new_state = %State{
+        state
+        | phase: :loot,
+          pending_items: items,
+          previous_phase: state.phase
+      }
 
-    {new_state, item_logs ++ [action_log]}
+      {new_state, item_logs ++ [action_log]}
+    end
   end
-end
 
   # SHOW INVENTORY
   defp show_inventory(state) do
-  inventory = state.player.inventory || []
+    inventory = state.player.inventory || []
 
-  if inventory == [] do
-    {state, [%{type: :log, text: "Your inventory is empty."}]}
-  else
-    item_logs =
-      Enum.with_index(inventory, 1)
-      |> Enum.map(fn {item, i} ->
-        %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
-      end)
+    if inventory == [] do
+      {state, [%{type: :log, text: "Your inventory is empty."}]}
+    else
+      item_logs =
+        Enum.with_index(inventory, 1)
+        |> Enum.map(fn {item, i} ->
+          %{type: :log, text: "#{i}. #{item.name} (#{item.type}: #{item.value})"}
+        end)
 
-    action_log = %{type: :log, text: "Type: use 1 / store 1 / leave 1 / exit"}
+      action_log = %{type: :log, text: "Type: use 1 / store 1 / leave 1 / exit"}
 
-    new_state = %State{
-      state |
-      previous_phase: state.phase,  # <-- spara nuvarande fas
-      phase: :inventory
-    }
+      new_state = %State{
+        state
+        | # <-- spara nuvarande fas
+          previous_phase: state.phase,
+          phase: :inventory
+      }
 
-    {new_state, item_logs ++ [action_log]}
+      {new_state, item_logs ++ [action_log]}
+    end
   end
-end
 end

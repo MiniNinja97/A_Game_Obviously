@@ -15,6 +15,7 @@ defmodule MyApp.Game.State do
     :phase,
     :previous_phase,
     :location,
+    :game_round,
     road_visits: 0,
     pending_items: [],
     log: []
@@ -34,6 +35,7 @@ defmodule MyApp.Game.State do
           room: map() | nil,
           phase: atom(),
           location: atom() | nil,
+          game_round: map() | nil,
           road_visits: integer(),
           pending_items: list(),
           log: list(map())
