@@ -31,6 +31,16 @@ if config_env() == :prod do
     url: [host: host, port: port, scheme: "http"],
     secret_key_base: secret_key_base
 
+  # DATABASE_URL for Railway
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise "DATABASE_URL is missing. Please set it on Railway."
+
+  config :my_app, MyApp.Repo,
+    url: database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    show_sensitive_data_on_connection_error: true
+
   # DNS cluster query if needed
   config :my_app, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
