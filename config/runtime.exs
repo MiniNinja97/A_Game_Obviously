@@ -5,7 +5,7 @@ if System.get_env("PHX_SERVER") do
   config :my_app, MyAppWeb.Endpoint, server: true
 end
 
-# Get the port from environment or default to 4000
+# Get port from environment or default to 4000
 port = String.to_integer(System.get_env("PORT") || "4000")
 
 config :my_app, MyAppWeb.Endpoint,
@@ -25,27 +25,30 @@ if config_env() == :prod do
       """
 
   # Hostname for URL generation
-  host = System.get_env("PHX_HOST") || "localhost"
+  host = System.get_env("PHX_HOST") || "example.com"
 
   config :my_app, MyAppWeb.Endpoint,
-    url: [host: host, port: port, scheme: "http"],
+    url: [host: host, port: 443, scheme: "https"], # HTTPS URL
     secret_key_base: secret_key_base
-
-  # DATABASE_URL for Railway
-  database_url =
-    System.get_env("DATABASE_URL") ||
-      raise "DATABASE_URL is missing. Please set it on Railway."
-
-  config :my_app, MyApp.Repo,
-    url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    show_sensitive_data_on_connection_error: true
-
-  # DNS cluster query if needed
-  config :my_app, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   # GitHub OAuth
   config :ueberauth, Ueberauth.Strategy.Github,
     client_id: System.get_env("GITHUB_CLIENT_ID"),
     client_secret: System.get_env("GITHUB_CLIENT_SECRET")
+
+  # DATABASE_URL parsing
+  database_url = System.get_env("DATABASE_URL") ||
+    raise "DATABASE_URL is missing!"
+
+  %URI{userinfo: userinfo, host: db_host, port: db_port, path: "/" <> db_name} = URI.parse(database_url)
+  [db_user, db_pass] = String.split(userinfo, ":")
+
+  config :my_app, MyApp.Repo,
+    username: db_user,
+    password: db_pass,
+    hostname: db_host,
+    database: db_name,
+    port: db_port,
+    pool_size: 10,
+    show_sensitive_data_on_connection_error: true
 end
