@@ -5,6 +5,8 @@
   font-family: "Handjet";
   font-weight: bold;
   font-size: 1.5em;
+  background-color: #444444;   /* samma som home */
+  color: #AAA8A6; 
   /* background-color: #444444; */
 
 
@@ -15,27 +17,28 @@
 }
 
 .login-title {
-  font-size: 1.8em;
+   font-size: 1.8em; /* behåll din storlek */
+  color: #AAA8A6;
+  text-shadow: #727171 2px 2px 4px, #494949 4px 4px 2px;
 }
 
 .login-button {
   
-    padding: 0.75rem 2rem;
-    border-radius: 0.7rem;
-    
-    text-align: center;
-    color: white;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-     background-color: #4b4949;
-    margin: 1em;
-    font-family: "Handjet";
-    font-size: 1.2em;
-    border-color: #444444;
+   padding: 0.75rem 2rem;
+  border-radius: 0.7rem;
+  text-align: center;
+  color: white;
+  transition: background-color 0.3s ease;
+  background-color: #969696;   /* samma som home */
+  margin: 1em;
+  font-family: "Handjet";
+  font-size: 1.2em;
+  border: none;
+  box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px; /* samma shadow */
     
 }
 .login-button:hover {
-  background: #333;
+   background-color: #706f6f;   /* samma hover */
 }
 
 .email-input {
@@ -59,5 +62,10 @@
   margin-bottom: 1rem;
   margin-top: 1em;
   background-color: #969696;
+}
+html, body {
+  background-color: #444444 !important;
+  margin: 0;
+  padding: 0;
 }
 

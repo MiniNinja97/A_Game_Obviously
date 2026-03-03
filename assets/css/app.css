@@ -13,6 +13,7 @@
 @import "./login.css";
 @import "./register.css";
 @import "./game_live.css";
+@import "./home_menu_live.css";
 @source "../css";
 @source "../js";
 @source "../../lib/my_app_web";

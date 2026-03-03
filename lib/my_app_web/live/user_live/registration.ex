@@ -33,6 +33,7 @@ defmodule MyAppWeb.UserLive.Registration do
           />
 
           <.input
+          class="email-input"
           field={@form[:password]}
           type="password"
           label="Password"

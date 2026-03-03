@@ -6,7 +6,7 @@ defmodule MyAppWeb.UserLive.Login do
   @impl true
   def render(assigns) do
     ~H"""
-    <%!-- <Layouts.app flash={@flash} current_scope={@current_scope}> --%>
+
       <div class="login-container">
         <div class="text-center">
           <.header>
@@ -25,36 +25,7 @@ defmodule MyAppWeb.UserLive.Login do
           </.header>
         </div>
 
-        <%!-- <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="" />
-          <div>
-            <p>You are running the local mail adapter.</p>
-            <p>
-              To see sent emails, visit <.link href="/dev/mailbox" class="">the mailbox page</.link>.
-            </p>
-          </div>
-        </div>      --%>
 
-        <%!-- <.form
-          :let={f}
-          for={@form}
-          id="login_form_magic"
-          action={~p"/users/log-in"}
-          phx-submit="submit_magic"
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="email"
-            required
-            phx-mounted={JS.focus()}
-          />
-
-        </.form>
-
-        <div class="">or</div> --%>
 
           <.form
               :let={f}
@@ -82,15 +53,10 @@ defmodule MyAppWeb.UserLive.Login do
           <.button class="login-button">
             LOG IN
           </.button>
-          <%!-- <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
-            Log in and stay logged in <span aria-hidden="true">→</span>
-          </.button>
-          <.button class="btn btn-primary btn-soft w-full mt-2">
-            Log in only this time
-          </.button> --%>
+
         </.form>
       </div>
-    <%!-- </Layouts.app> --%>
+
     """
   end
 

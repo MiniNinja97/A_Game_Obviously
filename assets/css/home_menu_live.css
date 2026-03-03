@@ -1,0 +1,104 @@
+
+.menu-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #444444;
+    font-family: "Handjet";
+    font-weight: bold;
+}
+
+
+.game-menu {
+    background-color: #5a5a5a;
+    padding: 3rem;
+    border-radius: 1rem;
+    width: 80%;
+    max-width: 900px;
+    box-shadow: #302f2f 0px 4px 6px, #706f6f 0px 8px 10px;
+    text-align: center;
+}
+
+
+.game-menu h1 {
+    font-size: 3rem;
+    font-weight: bolder;
+    margin-bottom: 2rem;
+    color: #AAA8A6;
+    text-shadow: #727171 2px 2px 4px, #494949 4px 4px 2px;
+}
+
+
+.menu-section {
+    margin-bottom: 2rem;
+}
+.menu-section:first-of-type {
+    background-color: #8a8989;
+    padding: 1.5rem;
+    border-radius: 0.7rem;
+    box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px;
+}
+
+
+.menu-section h2 {
+    font-size: 2.2rem;
+    font-weight: bolder;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+
+.score-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 2px solid #706f6f;
+    
+}
+
+
+
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    min-width: 100px;
+    
+}
+
+.status-item span {
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.status-item strong {
+    font-size: 1.35rem;
+    color: #202020;
+}
+
+
+.menu-section button,
+.btn-logout {
+    padding: 0.75rem 2rem;
+    border-radius: 0.7rem;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    font-size: 1.5rem;
+    background-color: #969696;
+    border: none;
+    margin: 1rem;
+    box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px;
+    font-family: "Handjet";
+    cursor: pointer;
+}
+
+.menu-section button:hover,
+.btn-logout:hover {
+    background-color: #706f6f;
+}

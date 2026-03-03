@@ -4,13 +4,14 @@
 
 .game-wrapper {
   min-height: 100vh;
-  background: #0f172a;
+  background: #444444; /* samma som home */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px;
-  font-family: "Courier New", monospace;
-  color: #e2e8f0;
+  font-family: "Handjet"; /* samma font */
+  font-weight: bold;
+  color: #AAA8A6; /* samma ljusa text */
 }
 
 /* =======================
@@ -19,10 +20,10 @@
 
 .game-card {
   width: 900px;
-  background: #1e293b;
+  background: #5e5e5e; /* samma grå box som innan */
   border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: #302f2f 0px 4px 6px, #706f6f 0px 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 25px;
@@ -35,20 +36,20 @@
 .status-panel {
   display: flex;
   justify-content: space-between;
-  background: #0f172a;
+  background: #969696; /* matchar dina kort */
   padding: 20px;
   border-radius: 12px;
 }
 
 .status-item span {
   display: block;
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 6em;
+  color: #292929;
 }
 
 .status-item strong {
-  font-size: 18px;
-  color: white;
+  font-size: 8em;
+  color: #222;
 }
 
 /* =======================
@@ -56,18 +57,19 @@
 ======================= */
 
 .terminal {
-  background: black;
+  background: #2f2f2f; /* mörk men i ditt gråtema */
   height: 350px;
   overflow-y: auto;
   padding: 20px;
   border-radius: 12px;
-  border: 1px solid #334155;
+  border: 1px solid #706f6f;
 }
 
+/* log-line får vara grön som du ville */
 .log-line {
   margin-bottom: 6px;
   color: #22c55e;
-  font-size: 14px;
+  font-size: 1.8em;
 }
 
 /* =======================
@@ -81,29 +83,34 @@
 
 .command-form input {
   flex: 1;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #969696;
+  border: none;
   padding: 12px;
   border-radius: 10px;
-  color: white;
-  font-size: 14px;
+  color: #222;
+  font-size: 1.5em;
+  font-family: "Handjet";
 }
 
 .command-form input:focus {
   outline: none;
-  border-color: #22c55e;
+  box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px;
 }
 
 .command-form button {
-  background: #22c55e;
+  background: #969696;
   border: none;
   padding: 12px 20px;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background-color 0.3s ease;
+  font-family: "Handjet";
+  box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px;
+  font-size: 1.2em;
+  color: #020202;
 }
 
 .command-form button:hover {
-  background: #16a34a;
+  background: #706f6f;
 }

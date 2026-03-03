@@ -18,6 +18,7 @@ defmodule MyAppWeb.GameMenuLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <div class="menu-wrapper">
     <div class="game-menu">
       <h1>Välkommen {@user.email}</h1>
 
@@ -81,6 +82,7 @@ defmodule MyAppWeb.GameMenuLive do
           Logga ut
         </.link>
       </div>
+    </div>
     </div>
     """
   end

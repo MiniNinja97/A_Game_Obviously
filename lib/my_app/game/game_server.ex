@@ -8,6 +8,8 @@ defmodule MyApp.Game.GameServer do
   # ==========
   # PUBLIC API
   # ==========
+
+
   def start_link(user_id) do
     GenServer.start_link(__MODULE__, user_id, name: via(user_id))
   end

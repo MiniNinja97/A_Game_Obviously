@@ -9,18 +9,17 @@
 }
 
 .register-button {
-    padding: 0.75rem 2rem;
-    border-radius: 0.7rem;
-    
-    text-align: center;
-    color: white;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-     background-color: #4b4949;
-    margin: 1em;
-    font-family: "Handjet";
-    font-size: 1.2em;
-    border-color: #444444;
+      padding: 0.75rem 2rem;
+  border-radius: 0.7rem;
+  text-align: center;
+  color: white;
+  transition: background-color 0.3s ease;
+  background-color: #969696;  /* samma som home */
+  margin: 1em;
+  font-family: "Handjet";
+  font-size: 1.2em;
+  border: none;
+  box-shadow: #302f2f 0px 2px 2px, #706f6f 0px 4px 4px; /* samma shadow */
     
 }
 
