@@ -61,8 +61,8 @@ defmodule MyApp.Game.Intro do
       Game.update_game(game_round, %{character_name: clean_name})
 
       events = [
-        %{type: :log, text: "Nice. #{clean_name} it is."},
-        %{type: :log, text: "Let the suffering begin."},
+        %{type: :log, text: "Nice. #{clean_name} it is. ->"},
+        %{type: :log, text: "Let the suffering begin. ->"},
         %{type: :log, text: "You find yourself standing on a lonely road."},
         %{type: :log, text: "Type 'move' to walk forward."}
       ]

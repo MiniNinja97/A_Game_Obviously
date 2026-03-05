@@ -29,7 +29,7 @@ defmodule MyApp.Game.Room do
       name: Enum.random(@room_names),
       enemy: %{name: "Goblin", health: 50, attack: 10},
       items: ItemGenerator.generate_items(),
-      description: "Du kliver in i ett rum. Det luktar fukt och mögel."
+      description: "You step into a dark place. The air is cold, damp, and smells of decay."
     }
   end
 
