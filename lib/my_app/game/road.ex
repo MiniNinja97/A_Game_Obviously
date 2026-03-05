@@ -1,5 +1,5 @@
 defmodule MyApp.Game.Road do
-  alias MyApp.Game.{State, Room}
+  alias MyApp.Game.{State, Room, Tavern}
 
   @road_texts [
     "You feel the wind on your face.",
@@ -28,21 +28,19 @@ defmodule MyApp.Game.Road do
   # =====================
   # MOVE LOGIC
   # =====================
-  defp handle_move(state) do
-    case state.road_visits do
-      0 ->
-        text = Enum.random(@road_texts)
+defp handle_move(state) do
+  case state.road_visits do
+    0 ->
+      text = Enum.random(@road_texts)
+      new_state = %State{state | road_visits: 1}
+      {new_state, [%{type: :log, text: text}]}
 
-        new_state = %State{
-          state
-          | road_visits: 1
-        }
-
-        {new_state, [%{type: :log, text: text}]}
-
-      1 ->
+    1 ->
+      if state.rooms_visited >= 2 do
+        # Skicka till tavernan
+        Tavern.enter(state)
+      else
         room = Room.random_room()
-
         new_state = %State{
           state
           | phase: :room,
@@ -51,20 +49,14 @@ defmodule MyApp.Game.Road do
             road_visits: 0
         }
 
-        {
-          new_state,
-          [
-            %{type: :log, text: "A new place emerges from afar: #{room.name}"},
-            %{type: :log, text: room.description},
-            %{
-              type: :log,
-              text:
-                "You can: 'go straight forward', 'go left', 'go right', 'search', or 'inventory'."
-            }
-          ]
-        }
-    end
+        {new_state, [
+          %{type: :log, text: "A new place emerges from afar: #{room.name}"},
+          %{type: :log, text: room.description},
+          %{type: :log, text: "You can: 'go straight forward', 'go left', 'go right', 'search', or 'inventory'."}
+        ]}
+      end
   end
+end
 
   # =====================
   # INVENTORY LOGIC

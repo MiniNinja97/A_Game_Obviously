@@ -17,6 +17,7 @@ defmodule MyApp.Game.State do
     :location,
     :game_round,
     road_visits: 0,
+    rooms_visited: 0,
     pending_items: [],
     log: []
   ]

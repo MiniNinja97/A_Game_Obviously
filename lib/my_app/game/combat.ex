@@ -52,7 +52,8 @@ defmodule MyApp.Game.Combat do
             state_after_player
             | phase: :road,
               room: %{state_after_player.room | enemy: nil},
-              player: new_player
+              player: new_player,
+              rooms_visited: state_after_player.rooms_visited + 1
           }
 
           {
@@ -102,7 +103,8 @@ defmodule MyApp.Game.Combat do
               state
               | phase: :road,
                 room: nil,
-                player: new_player
+                player: new_player,
+                rooms_visited: state.rooms_visited + 1
             },
             [
               %{
