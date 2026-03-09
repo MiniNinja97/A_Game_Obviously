@@ -50,7 +50,7 @@ defmodule MyApp.Game.Loot do
 
         {next_phase, next_previous_phase} =
           if remaining_items == [] do
-            {state.previous_phase || :road, nil} # återgå till fas innan loot
+            {state.previous_phase || :road, nil}
           else
             {:loot, state.previous_phase || state.phase}
           end
@@ -87,7 +87,7 @@ defmodule MyApp.Game.Loot do
 
             {next_phase, next_previous_phase} =
               if remaining_items == [] do
-                {state.previous_phase || :road, nil} # återgå till fas innan loot
+                {state.previous_phase || :road, nil}
               else
                 {:loot, state.previous_phase || state.phase}
               end

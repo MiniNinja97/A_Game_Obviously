@@ -7,7 +7,7 @@ defmodule MyAppWeb.UserLive.Registration do
   @impl true
   def render(assigns) do
     ~H"""
-    <%!-- <Layouts.app flash={@flash} current_scope={@current_scope}> --%>
+
       <div class="register-container">
         <div class="">
           <.header>
@@ -45,7 +45,7 @@ defmodule MyAppWeb.UserLive.Registration do
           </.button>
         </.form>
       </div>
-    <%!-- </Layouts.app> --%>
+
     """
   end
 

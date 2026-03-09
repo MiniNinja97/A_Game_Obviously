@@ -3,7 +3,7 @@ defmodule MyApp.Game.ItemGenerator do
   Responsible for generating items in the game.
   """
 
-  # alias MyApp.Game.Dice
+
 
   @items [
     %{name: "Apple", type: :health, value: 20},

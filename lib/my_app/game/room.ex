@@ -131,7 +131,7 @@ defmodule MyApp.Game.Room do
 
       new_state = %State{
         state
-        | # <-- spara nuvarande fas
+        |
           previous_phase: state.phase,
           phase: :inventory
       }

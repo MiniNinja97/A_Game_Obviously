@@ -9,13 +9,13 @@ defmodule MyApp.Game.Engine do
   # =========================
   # Hantera input från spelaren
   # =========================
-  # Tar nu emot game_round som tredje argument
+
   @spec handle_input(State.t(), String.t(), any()) :: {State.t(), list(map())}
   def handle_input(%State{phase: :character_creation} = state, input, game_round) do
-    # Trimma och ta bort extra citattecken
+
     clean_input = String.trim(input) |> String.replace(~r/^"|"$/, "")
 
-    # Kalla på Intro.handle/3 som uppdaterar game_round direkt
+
     Intro.handle(state, clean_input, game_round)
   end
 

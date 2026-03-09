@@ -40,12 +40,12 @@ defmodule MyApp.Game.Combat do
         state_after_player = %{state | room: new_room}
 
         if new_enemy.health <= 0 do
-          # Combat vunnen → belöning
+
           new_player =
             state_after_player.player
             |> Map.update!(:health, &(&1 + 10))
             |> Map.update!(:attack, &(&1 + 10))
-            # +1 XP, lägg till om du har xp
+
             |> Map.update(:xp, 0, &(&1 + 1))
 
           final_state = %{
@@ -95,7 +95,7 @@ defmodule MyApp.Game.Combat do
         roll = Dice.roll(6)
 
         if roll >= 4 do
-          # Lyckad run → belöning intellect
+
           new_player = Map.update(state.player, :intellect, 0, &(&1 + 10))
 
           {

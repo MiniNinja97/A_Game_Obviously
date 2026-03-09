@@ -77,7 +77,7 @@ end
 
     new_state = %State{
       state |
-      previous_phase: state.phase,  # <-- spara nuvarande fas
+      previous_phase: state.phase,
       phase: :inventory
     }
 

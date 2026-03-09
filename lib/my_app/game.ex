@@ -22,7 +22,7 @@ defmodule MyApp.Game do
           started_at: DateTime.utc_now(),
           status: "ongoing"
         })
-        |> Repo.insert() # ← returnerar {:ok, game_round}
+        |> Repo.insert()
 
       game ->
         {:ok, game}
